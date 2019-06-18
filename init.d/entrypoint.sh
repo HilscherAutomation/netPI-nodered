@@ -11,7 +11,13 @@ term_handler() {
 trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SIGHUP
 
 # start Node-RED as background task
-/opt/cifx/checkdevicetype | xargs /etc/init.d/nodered.sh start
+if [[ $IMAGE_TAG == "CORE3" ]]; then
+  /usr/bin/node-red &
+fi
+
+if [[ $IMAGE_TAG == "RTE3" ]]; then
+  /opt/cifx/checkdevicetype | xargs /etc/init.d/nodered.sh start
+fi
 
 # start Fieldbus Web configurator as background task
 /etc/init.d/webconfig.sh start

@@ -49,12 +49,16 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.0.0
+ENV HILSCHERNETPI_NODERED_VERSION 1.0.1
+
+#tag     
+ENV IMAGE_TAG "RTE3"
 
 #labeling
-LABEL maintainer="netpi@hilscher.com" \ 
+LABEL maintainer="netpi@hilscher.com" \
       version=$HILSCHERNETPI_NODERED_VERSION \
-      description="Node-RED including all netPI specific Node-RED nodes"
+      description="Node-RED including all netPI specific Node-RED nodes" \
+      tag=$IMAGE_TAG
 
 #copy files
 COPY "./init.d/*" /etc/init.d/
