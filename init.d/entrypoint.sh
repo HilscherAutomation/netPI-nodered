@@ -10,17 +10,18 @@ term_handler() {
 # on callback, stop all started processes in term_handler
 trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SIGHUP
 
-# start Node-RED as background task
 if [[ $IMAGE_TAG == "CORE3" ]]; then
+  # start Node-RED as background task
   /usr/bin/node-red &
 fi
 
 if [[ $IMAGE_TAG == "RTE3" ]]; then
+  # start Node-RED as background task
   /opt/cifx/checkdevicetype | xargs /etc/init.d/nodered.sh start
+  # start Fieldbus Web configurator as background task
+  /etc/init.d/webconfig.sh start
 fi
 
-# start Fieldbus Web configurator as background task
-/etc/init.d/webconfig.sh start
 
 # start dbus as background task
 /etc/init.d/dbus start
