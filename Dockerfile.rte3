@@ -1,0 +1,275 @@
+#STEP 1 of multistage build ---Compile Bluetooth stack-----
+
+#use armv7hf compatible base image
+FROM balenalib/armv7hf-debian:stretch as builder
+
+#enable building ARM container on x86 machinery on the web (comment out next line if built on Raspberry) 
+RUN [ "cross-build-start" ]
+
+#environment variables
+ENV BLUEZ_VERSION 5.50 
+
+RUN apt-get update \
+    && apt-get install -y build-essential wget \
+       libical-dev libdbus-1-dev libglib2.0-dev libreadline-dev libudev-dev systemd
+
+RUN wget -P /tmp/ https://www.kernel.org/pub/linux/bluetooth/bluez-${BLUEZ_VERSION}.tar.gz \
+    && tar xf /tmp/bluez-${BLUEZ_VERSION}.tar.gz -C /tmp \
+#compile bluez
+    && cd /tmp/bluez-${BLUEZ_VERSION} \
+    && ./configure --prefix=/usr \
+       --mandir=/usr/share/man \
+       --sysconfdir=/etc \
+       --localstatedir=/var \
+       --enable-library \
+       --enable-experimental \
+       --enable-maintainer-mode \
+       --enable-deprecated \
+    && make \
+#install bluez tools
+    && make install
+#stop processing ARM emulation (comment out next line if built on Raspberry)
+RUN [ "cross-build-end" ]
+
+#STEP 2 of multistage build ----Create the final image-----
+
+#use armv7hf compatible base image
+FROM balenalib/armv7hf-debian:stretch
+
+#dynamic build arguments coming from the /hooks/build file
+ARG BUILD_DATE
+ARG VCS_REF
+
+#metadata labels
+LABEL org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-url="https://github.com/HilscherAutomation/netPI-nodered" \
+      org.label-schema.vcs-ref=$VCS_REF
+
+#enable building ARM container on x86 machinery on the web (comment out next line if built on Raspberry) 
+RUN [ "cross-build-start" ]
+
+#version
+ENV HILSCHERNETPI_NODERED_VERSION 1.0.0
+
+#labeling
+LABEL maintainer="netpi@hilscher.com" \ 
+      version=$HILSCHERNETPI_NODERED_VERSION \
+      description="Node-RED including all netPI specific Node-RED nodes"
+
+#copy files
+COPY "./init.d/*" /etc/init.d/
+
+# -------------------- Install nodejs and Node-RED --------------------
+
+#install node.js V8.x.x and Node-RED
+RUN apt-get update  \
+    && curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -  \
+    && apt-get install -y nodejs  \
+    && npm install -g --unsafe-perm node-red
+
+# -------------------- Install common tools --------------------
+
+RUN apt-get install curl build-essential python-dev
+
+# -------------------- Install Fieldbus node and all dependencies --------------------
+
+#copy all relevant files 
+COPY "./submodules/netPI-nodered-fieldbus/node-red-contrib-fieldbus/*" "./submodules/netPI-nodered-fieldbus/node-red-contrib-fieldbus/lib/*" "./submodules/netPI-nodered-fieldbus/firmwares/*" "./submodules/netPI-nodered-fieldbus/driver/*" "./submodules/netPI-nodered-fieldbus/web-configurator-fieldbus/*" /tmp/
+# install all additional tools
+RUN apt-get install libboost-filesystem1.62-dev libboost-date-time1.62-dev libjansson-dev p7zip-full \
+#install netx driver
+    && dpkg -i /tmp/netx-docker-pi-drv-1.1.3.deb \
+#compile program checking we are running on netPI RTE 3
+    && mv /tmp/checkdevicetype.c /opt/cifx \
+    && gcc /opt/cifx/checkdevicetype.c -o /opt/cifx/checkdevicetype -I /usr/include/cifx -lcifx \
+    && chmod +x /opt/cifx/checkdevicetype \
+#install web fieldbus configurator
+    && 7z -t7z -r -v: x "/tmp/WebConfigurator_V1.0200.1000.7z" -o/usr/lib/node_modules \
+    && mv "/usr/lib/node_modules/WebConfigurator V1.0200.1000" "/usr/lib/node_modules/WebConfigurator" \
+    && cd /usr/lib/node_modules/WebConfigurator/ServerContent/ \
+    && npm install \
+#make some changes in the fielbus configurator setup file
+    && sed -i -e 's;"uiHost": "127.0.0.1";\"uiHost": "";' ServerSettings.json \
+    && sed -i -e 's;"configuration-file-path": "/opt/node-red/.userdir";\"configuration-file-path": "/root/.node-red/";' ServerSettings.json \
+    && sed -i -e 's;"platform": "ntijcxgb";\"platform": "npi3";' ServerSettings.json \
+#install fieldbus nodes
+    && mkdir /root/.node-red \
+    && mv /tmp/fieldbusSettings.json /root/.node-red \
+    && mkdir -p /root/.node-red/node_modules/fieldbus/lib \
+    && mv /tmp/10-fieldbus.html /tmp/10-fieldbus.js /tmp/package.json -t /root/.node-red/node_modules/fieldbus \
+    && mv /tmp/fieldbusConnectionPool.js /tmp/fieldbusHandler.js /tmp/HilscherLog.js /tmp/HilscherToolBox.js /root/.node-red/node_modules/fieldbus/lib \
+    && cd /root/.node-red/node_modules/fieldbus \
+    && npm install \
+    && cd /root/.node-red \
+    && npm rebuild \
+#install fieldbus nodes wrapper library and generate needed libboost V1.61.0 links
+    && mv /tmp/fieldbus.node /root/.node-red/node_modules/fieldbus/lib \
+    && ln -s /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so.1.62.0 /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so.1.61.0 \
+    && ln -s /usr/lib/arm-linux-gnueabihf/libboost_system.so.1.62.0 /usr/lib/arm-linux-gnueabihf/libboost_system.so.1.61.0 \
+#install netx firmwares from zip
+    && mkdir /opt/cifx/deviceconfig/FW/channel0 \
+    && 7z -tzip -r -v: x "/tmp/FWPool.zip" -o/root/.node-red \
+#clean up
+    && rm -rf /tmp/* \
+    && apt-get remove p7zip-full
+
+# -------------------- Install FRAM node and all dependencies --------------------
+
+#copy all relevant files 
+COPY "./submodules/netPI-nodered-fram/node-red-contrib-fram/*" /tmp/
+#install node
+RUN mkdir /usr/lib/node_modules/node-red-contrib-fram \
+    && mv /tmp/fram.js /tmp/fram.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-fram \
+    && cd /usr/lib/node_modules/node-red-contrib-fram \
+    && npm install \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install netPI user LED nodes and all dependencies --------------------
+
+#copy all relevant files 
+COPY "./submodules/netPI-nodered-user-leds/node-red-contrib-user-leds/*" /tmp/
+#install node
+RUN mkdir /usr/lib/node_modules/node-red-contrib-user-leds \
+    && mv /tmp/netiot-io-led.js /tmp/netiot-io-led.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-user-leds \
+    && cd /usr/lib/node_modules/node-red-contrib-user-leds \
+    && npm install \
+# generate symbolik links for LEDs
+    && mkdir /var/platform \
+    && cd /var/platform \
+    && ln -s /sys/class/leds/user0:orange:user/brightness led_led2 \
+    && ln -s /sys/class/leds/user1:orange:user/brightness led_led1 \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install NPIX LED nodes and all dependencies --------------------
+
+#copy files
+COPY "./submodules/netPI-nodered-npix-leds/node-red-contrib-npix-leds/*" /tmp/
+
+#install node
+RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-leds \
+    && mv /tmp/npixleds.js /tmp/npixleds.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-leds \
+    && cd /usr/lib/node_modules/node-red-contrib-npix-leds \
+    && npm install \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install NPIX RS485 nodes and all dependencies --------------------
+
+COPY "./submodules/netPI-nodered-npix-rs485/node-red-contrib-npix-rs485/*" "./submodules/netPI-nodered-npix-rs485/node-red-contrib-npix-rs485/locales/en-US/*" /tmp/
+
+#install node
+RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-rs485 /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/ /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
+    && mv /tmp/25-serial.js /tmp/25-serial.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs485 \
+    && mv /tmp/25-serial.json /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
+    && cd /usr/lib/node_modules/node-red-contrib-npix-rs485 \
+    && npm install --unsafe-perm \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install NPIX RS232 nodes and all dependencies --------------------
+
+
+COPY "./submodules/netPI-nodered-npix-rs232/node-red-contrib-npix-rs232/*" "./submodules/netPI-nodered-npix-rs232/node-red-contrib-npix-rs232/locales/en-US/*" /tmp/
+
+#install node
+RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-rs232 /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/ /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
+    && mv /tmp/25-serial.js /tmp/25-serial.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs232 \
+    && mv /tmp/25-serial.json /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
+    && cd /usr/lib/node_modules/node-red-contrib-npix-rs232 \
+    && npm install --unsafe-perm \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install NPIX 4AI16U nodes and all dependencies --------------------
+
+COPY "./submodules/netPI-nodered-npix-ai/node-red-contrib-npix-ai/*" /tmp/
+
+#install node
+RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-ai \
+    && mv /tmp/npixai.js /tmp/npixai.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-ai \
+    && cd /usr/lib/node_modules/node-red-contrib-npix-ai \
+    && npm install \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install NPIX 4DI4DO nodes and all dependencies --------------------
+
+#copy files
+COPY "./submodules/netPI-nodered-npix-io/node-red-contrib-npix-io/*" /tmp/
+
+RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-io \
+    && mv /tmp/npixio.js /tmp/npixio.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-io \
+    && cd /usr/lib/node_modules/node-red-contrib-npix-io \
+    && npm install \
+#clean up
+    && rm -rf /tmp/* 
+
+# -------------------- Install Modbus nodes and all dependencies --------------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-contrib-modbus
+
+# -------------------- Install Dashboard nodes and all dependencies -----------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-dashboard
+
+# -------------------- Install OPC UA nodes and all dependencies --------------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-contrib-opcua
+
+# -------------------- Install Bluetooth stack and all dependencies --------------------
+
+# install all additional tools
+
+RUN apt-get install -y dbus git libglib2.0-dev \
+#get BCM chip firmware 
+    && mkdir /etc/firmware \
+    && curl -o /etc/firmware/BCM43430A1.hcd -L https://github.com/OpenELEC/misc-firmware/raw/master/firmware/brcm/BCM43430A1.hcd \
+#create folders for bluetooth tools
+    && mkdir -p '/usr/bin' '/usr/libexec/bluetooth' '/usr/lib/cups/backend' '/etc/dbus-1/system.d' \
+       '/usr/share/dbus-1/services' '/usr/share/dbus-1/system-services' '/usr/include/bluetooth' \
+       '/usr/share/man/man1' '/usr/share/man/man8' '/usr/lib/pkgconfig' '/usr/lib/bluetooth/plugins' \
+       '/lib/udev/rules.d' '/lib/systemd/system' '/usr/lib/systemd/user' '/lib/udev' \
+#install userland raspberry tools
+    && git clone --depth 1 https://github.com/raspberrypi/firmware /tmp/firmware \
+    && mv /tmp/firmware/hardfp/opt/vc /opt \
+    && echo "/opt/vc/lib" >/etc/ld.so.conf.d/00-vmcs.conf \
+    && /sbin/ldconfig \
+#clean up
+    && rm -rf /tmp/* \
+    && rm -rf /opt/vc/src
+
+#copy bluez tools from builder container
+COPY --from=builder /usr/bin/bluetoothctl /usr/bin/btmon /usr/bin/rctest /usr/bin/l2test /usr/bin/l2ping \
+                    /usr/bin/bccmd /usr/bin/bluemoon /usr/bin/hex2hcd /usr/bin/mpris-proxy /usr/bin/btattach \
+                    /usr/bin/hciattach /usr/bin/hciconfig /usr/bin/hcitool /usr/bin/hcidump /usr/bin/rfcomm \
+                    /usr/bin/sdptool /usr/bin/ciptool /usr/bin/
+COPY --from=builder /usr/bin/ciptool /usr/bin/
+COPY --from=builder /usr/libexec/bluetooth/bluetoothd /usr/libexec/bluetooth/obexd /usr/libexec/bluetooth/
+COPY --from=builder /usr/lib/cups/backend/bluetooth /usr/lib/cups/backend/
+COPY --from=builder /etc/dbus-1/system.d/bluetooth.conf /etc/dbus-1/system.d/
+COPY --from=builder /usr/share/dbus-1/services/org.bluez.obex.service /usr/share/dbus-1/services/
+COPY --from=builder /usr/share/dbus-1/system-services/org.bluez.service /usr/share/dbus-1/system-services/
+COPY --from=builder /usr/include/bluetooth/* /usr/include/bluetooth/
+COPY --from=builder /usr/share/man/man1* /usr/share/man/man1/
+COPY --from=builder /usr/share/man/man8/bluetoothd.8 /usr/share/man/man8/
+COPY --from=builder /usr/lib/pkgconfig/bluez.pc /usr/lib/pkgconfig/
+COPY --from=builder /usr/lib/bluetooth/plugins/external-dummy.so /usr/lib/bluetooth/plugins/
+COPY --from=builder /usr/lib/bluetooth/plugins/external-dummy.la /usr/lib/bluetooth/plugins/
+COPY --from=builder /lib/udev/rules.d/97-hid2hci.rules /lib/udev/rules.d/
+COPY --from=builder /lib/systemd/system/bluetooth.service /lib/systemd/system/
+COPY --from=builder /usr/lib/systemd/user/obex.service /usr/lib/systemd/user/
+COPY --from=builder /lib/udev/hid2hci /lib/udev/
+
+#set the entrypoint
+ENTRYPOINT ["/etc/init.d/entrypoint.sh"]
+
+#set STOPSGINAL
+STOPSIGNAL SIGTERM
+
+#stop processing ARM emulation (comment out next line if built on Raspberry)
+RUN [ "cross-build-end" ]
