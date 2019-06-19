@@ -49,7 +49,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.0.1
+ENV HILSCHERNETPI_NODERED_VERSION 1.0.2
 
 #tag
 ENV IMAGE_TAG "CORE3"
@@ -170,6 +170,11 @@ RUN cd /usr/lib/ \
 
 RUN cd /usr/lib/ \
     && npm install node-red-contrib-opcua
+
+# -------------------- Install S7 communication nodes and all dependencies --------------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-contrib-s7comm
 
 # -------------------- Install Bluetooth stack and all dependencies --------------------
 
