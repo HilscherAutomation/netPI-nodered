@@ -34,7 +34,7 @@ There are different image tags provided. Choose either or depending on the netPI
 
 Tag `core3` is for netPI CORE 3.
 
-Tag `rte3` is for netPI RTE 3. It includes additional nodes to access the netX industrial network controller and the FRAM.
+Tag `rte3` is for netPI RTE 3. (Includes additional nodes to access the netX industrial network controller and the FRAM).
 
 ##### Port mapping
 
@@ -45,6 +45,8 @@ The container runs in host network mode only. Mapping of ports is not necessary 
 To grant access to the BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. 
 
 To prevent the container from failing to load the BCM bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
+
+To grant access to the NPIX serial port the device `/dev/ttyS0` needs to be added to the container. The device is available only if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.
 
 To grant access to the netX industrial network controller (tag `rte3`) from inside the container the `/dev/spidev0.0` host device needs to be added to the container.
 
@@ -78,6 +80,7 @@ Parameter | Value | Remark
 *Restart policy* | **always**
 *Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** | tag `rte3` only
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** |
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | tag `rte3` only
 *Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | tag `rte3` only
