@@ -230,6 +230,17 @@ RUN cd /usr/lib/ \
 RUN cd /usr/lib/ \
     && npm install node-red-contrib-s7comm
 
+# -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-contrib-ibm-watson-iot
+
+# -------------------- Install Microsoft Azure IoT Hub nodes and all dependencies --------------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-contrib-azure-iot-hub
+
+
 # -------------------- Install Bluetooth stack and all dependencies --------------------
 
 # install all additional tools
