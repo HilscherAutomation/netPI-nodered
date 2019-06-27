@@ -30,11 +30,11 @@ Base of the two image tags `rte3` and `core3` builds [debian](https://www.balena
 
 ##### Image tags
 
-There are different image tags provided. Choose either or depending on the netPI device in use.
+Choose an image tag depending on the netPI target device in use:
 
-Tag `core3` is for netPI CORE 3.
+Use tag `core3` for target device netPI CORE 3 (NIOT-E-NPI3-51-EN-RE)
 
-Tag `rte3` is for netPI RTE 3. (Includes additional nodes to access the netX industrial network controller and the FRAM).
+Use tag `rte3` for target device netPI RTE (NIOT-E-NPI3-EN).
 
 ##### Port mapping
 
@@ -42,15 +42,17 @@ The container runs in host network mode only. Mapping of ports is not necessary 
 
 ##### Host devices
 
-To grant access to the BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. 
+For tags `rte3` and `core3` both:
 
-To prevent the container from failing to load the BCM bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
+To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. To prevent the container from failing to load the BCM bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
 
-To grant access to the NPIX serial port the device `/dev/ttyS0` needs to be added to the container. The device is available only if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.
+(optional) To grant access to the serial port of the NPIX expansion slot the device `/dev/ttyS0` needs to be added to the container. The tty device is available only if an inserted NPIX (RS232, RS485) module has been recognized by netPI during boot process. Else the container will fail to start.
 
-To grant access to the netX industrial network controller (tag `rte3`) from inside the container the `/dev/spidev0.0` host device needs to be added to the container.
+For tag `rte3` only:
 
-To grant access to the FRAM (tag `rte3`) from inside the container the `/dev/i2c-1` host device needs to be added to the container.
+To grant access to the netX industrial network controller from inside the container the `/dev/spidev0.0` host device needs to be added to the container.
+
+To grant access to the FRAM memory from inside the container the `/dev/i2c-1` host device needs to be added to the container.
 
 ##### Privileged mode
 
@@ -60,7 +62,9 @@ netPI's secure reference software architecture prohibits root access to the Host
 
 ##### Environment Variables
 
-With image tag `rte3` the type of field network protocol can be specified that is loaded into netX industrial network controller through the following variable
+For tag `rte3` only:
+
+The type of field network protocol can be specified that is loaded into netX industrial network controller through the following variable
 
 * **FIELD** with value `pns` to load PROFINET IO device or value `eis` to load EtherNet/IP adapter network protocol
 
@@ -80,10 +84,10 @@ Parameter | Value | Remark
 *Restart policy* | **always**
 *Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** | tag `rte3` only
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** |
-*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | tag `rte3` only
 *Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | tag `rte3` only
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | NPIX serial port
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
