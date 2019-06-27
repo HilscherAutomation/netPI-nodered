@@ -32,27 +32,33 @@ Base of the two image tags `rte3` and `core3` builds [debian](https://www.balena
 
 Choose an image tag depending on the netPI target device in use:
 
-Use tag `core3` for target device netPI CORE 3 (NIOT-E-NPI3-51-EN-RE)
+Use tag `core3` for device netPI CORE 3 (NIOT-E-NPI3-51-EN-RE)
 
-Use tag `rte3` for target device netPI RTE (NIOT-E-NPI3-EN).
+Use tag `rte3` for device netPI RTE 3 (NIOT-E-NPI3-EN).
 
-##### Port mapping
+##### Port mapping, network mode
 
-The container runs in host network mode only. Mapping of ports is not necessary at all.
+The container needs to run in `host` network mode. 
+
+Using this mode makes port mapping unnecessary since all the container's used ports (1880) are exposed to the host automatically.
 
 ##### Host devices
 
-For tags `rte3` and `core3` both:
+All targets:
 
-To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. To prevent the container from failing to load the BCM bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
+To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. 
 
-(optional) To grant access to the serial port of the NPIX expansion slot the device `/dev/ttyS0` needs to be added to the container. The tty device is available only if an inserted NPIX (RS232, RS485) module has been recognized by netPI during boot process. Else the container will fail to start.
+To prevent the container from failing to load the bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
 
-For tag `rte3` only:
+netPI RTE 3 target:
 
-To grant access to the netX industrial network controller from inside the container the `/dev/spidev0.0` host device needs to be added to the container.
+To grant access to the onboard netX industrial network controller the `/dev/spidev0.0` host device needs to be added to the container.
 
-To grant access to the FRAM memory from inside the container the `/dev/i2c-1` host device needs to be added to the container.
+To grant access to the onboard FRAM memory the `/dev/i2c-1` host device needs to be added to the container.
+
+Optional NPIX-RS232 and NPIX-RS485 modules:
+
+To grant access to serial port NPIX expansion modules the device `/dev/ttyS0` needs to be added to the container. The tty device is available only if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.
 
 ##### Privileged mode
 
@@ -62,7 +68,7 @@ netPI's secure reference software architecture prohibits root access to the Host
 
 ##### Environment Variables
 
-For tag `rte3` only:
+netPI RTE 3 target:
 
 The type of field network protocol can be specified that is loaded into netX industrial network controller through the following variable
 
@@ -76,18 +82,31 @@ STEP 2. Click the Docker tile to open the [Portainer.io](http://portainer.io/) D
 
 STEP 3. Enter the following parameters under *Containers > + Add Container*
 
+for netPI CORE 3 target:
+
 Parameter | Value | Remark
 :---------|:------ |:------
-*Image* | **hilschernetpi/netpi-nodered:core3** | netPI CORE 3 tag
-*Image* | **hilschernetpi/netpi-nodered:rte3** | or netPI RTE 3 tag
+*Image* | **hilschernetpi/netpi-nodered:core3** |
 *Network > Network* | **host** |
 *Restart policy* | **always**
-*Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** | tag `rte3` only
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
-*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | tag `rte3` only
-*Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | tag `rte3` only
-*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | NPIX serial port
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional, NPIX serial
+*Runtime > Privileged mode* | **On** |
+
+for netPI RTE 3 target:
+
+Parameter | Value | Remark
+:---------|:------ |:------
+*Image* | **hilschernetpi/netpi-nodered:rte3** |
+*Network > Network* | **host** |
+*Restart policy* | **always**
+*Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** |
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** |
+*Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
+*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
+*Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** |
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional, NPIX serial
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
