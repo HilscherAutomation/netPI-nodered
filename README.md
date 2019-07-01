@@ -1,9 +1,9 @@
 ## Node-RED
 
-[![](https://images.microbadger.com/badges/image/hilschernetpi/netpi-nodered.svg)](https://microbadger.com/images/hilschernetpi/netpi-nodered "Node-RED")
-[![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-nodered.svg)](https://microbadger.com/images/hilschernetpi//netpi-nodered "Node-RED")
-[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-nodered.svg)](https://registry.hub.docker.com/u/hilschernetpi/netpi-nodered/)&nbsp;
-[![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-nodered&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-nodered "Image last updated")&nbsp;
+[![](https://images.microbadger.com/badges/image/hilschernetpi/netpi-nodered:rte3.svg)](https://microbadger.com/images/hilschernetpi/netpi-nodered:rte3 "Node-RED")
+[![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-nodered:rte3.svg)](https://microbadger.com/images/hilschernetpi//netpi-nodered:rte3 "Node-RED")
+[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-nodered:rte3.svg)](https://registry.hub.docker.com/u/hilschernetpi/netpi-nodered/)&nbsp;
+[![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-nodered:rte3&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-nodered:rte3 "Image last updated")&nbsp;
 
 Made for [netPI](https://www.netiot.com/netpi/), the Raspberry Pi 3B Architecture based industrial suited Open Edge Connectivity Ecosystem
 
@@ -23,6 +23,8 @@ Base of the two image tags `rte3` and `core3` builds [debian](https://www.balena
  * node-red-contrib-modbus
  * node-red-contrib-opcua
  * node-red-dashboard
+ * node-red-contrib-ibm-watson-iot
+ * node-red-contrib-azure-iot-hub
  * node-red-contrib-fieldbus (in image tag `rte3` only)
  * node-red-contrib-fram (in image tag `rte3` only)
 
