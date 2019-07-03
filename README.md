@@ -13,7 +13,8 @@ The image provided hereunder deploys a container with installed Debian, Node-RED
 
 Base of the two image tags `rte3` and `core3` builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with installed Internet of Things flow-based programming web-tool [Node-RED](https://nodered.org/) and the following additional nodes
 
-:---------|:------
+Node | Node 
+:--- |:---
 netpi-nodered-npix-rs232 | netpi-nodered-npix-rs485 
 netpi-nodered-npix-io | netpi-nodered-npix-ai
 netpi-nodered-user-leds | netpi-nodered-nxpix-leds
