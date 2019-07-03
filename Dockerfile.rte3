@@ -240,6 +240,10 @@ RUN cd /usr/lib/ \
 RUN cd /usr/lib/ \
     && npm install node-red-contrib-azure-iot-hub
 
+# -------------------- Install serial port node and all dependencies --------------------
+
+RUN cd /usr/lib/ \
+    && npm install node-red-node-serialport
 
 # -------------------- Install Bluetooth stack and all dependencies --------------------
 
