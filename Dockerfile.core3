@@ -49,7 +49,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.0.2
+ENV HILSCHERNETPI_NODERED_VERSION 1.0.4
 
 #tag
 ENV IMAGE_TAG "CORE3"
@@ -111,8 +111,8 @@ COPY "./submodules/netPI-nodered-npix-rs485/node-red-contrib-npix-rs485/*" "./su
 
 #install node
 RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-rs485 /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/ /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
-    && mv /tmp/25-serial.js /tmp/25-serial.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs485 \
-    && mv /tmp/25-serial.json /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
+    && mv /tmp/25-serial-rs485.js /tmp/25-serial-rs485.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs485 \
+    && mv /tmp/25-serial-rs485.json /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
     && cd /usr/lib/node_modules/node-red-contrib-npix-rs485 \
     && npm install --unsafe-perm \
 #clean up
@@ -125,8 +125,8 @@ COPY "./submodules/netPI-nodered-npix-rs232/node-red-contrib-npix-rs232/*" "./su
 
 #install node
 RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-rs232 /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/ /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
-    && mv /tmp/25-serial.js /tmp/25-serial.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs232 \
-    && mv /tmp/25-serial.json /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
+    && mv /tmp/25-serial-rs232.js /tmp/25-serial-rs232.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs232 \
+    && mv /tmp/25-serial-rs232.json /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
     && cd /usr/lib/node_modules/node-red-contrib-npix-rs232 \
     && npm install --unsafe-perm \
 #clean up
