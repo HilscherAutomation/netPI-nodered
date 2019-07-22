@@ -21,6 +21,7 @@ netpi-nodered-user-leds | netpi-nodered-nxpix-leds
 node-red-contrib-generic-ble | node-red-contrib-modbus
 node-red-contrib-opcua |node-red-dashboard
 node-red-contrib-ibm-watson-iot |node-red-contrib-azure-iot-hub
+node-red-contrib-influxdb | node-red-node-serialport
 node-red-contrib-fieldbus (tag `rte3`) | node-red-contrib-fram (tag `rte3`)
 
 #### Container prerequisites
