@@ -30,9 +30,9 @@ node-red-contrib-fieldbus (tag `rte3`) | node-red-contrib-fram (tag `rte3`)
 
 Choose an image tag depending on the netPI target device in use:
 
-Use tag `core3` for device netPI CORE 3 (NIOT-E-NPI3-51-EN-RE)
+Use tag `core3` for device netPI CORE 3 (NIOT-E-NPI3-EN)
 
-Use tag `rte3` for device netPI RTE 3 (NIOT-E-NPI3-EN).
+Use tag `rte3` for device netPI RTE 3 (NIOT-E-NPI3-51-EN-RE).
 
 ##### Port mapping, network mode
 
