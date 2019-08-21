@@ -49,7 +49,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.0.5
+ENV HILSCHERNETPI_NODERED_VERSION 1.0.6
 
 #tag     
 ENV IMAGE_TAG "RTE3"
@@ -73,7 +73,12 @@ RUN apt-get update  \
 
 # -------------------- Install common tools --------------------
 
-RUN apt-get install curl build-essential python-dev
+RUN apt-get install curl build-essential python-dev python-pip python-setuptools
+
+# -------------------- Install GPIO python lib --------------------------------------
+
+RUN pip install wheel 
+RUN pip install RPi.GPIO
 
 # -------------------- Install Fieldbus node and all dependencies --------------------
 
@@ -156,33 +161,6 @@ RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-leds \
     && mv /tmp/npixleds.js /tmp/npixleds.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-leds \
     && cd /usr/lib/node_modules/node-red-contrib-npix-leds \
     && npm install \
-#clean up
-    && rm -rf /tmp/* 
-
-# -------------------- Install NPIX RS485 nodes and all dependencies --------------------
-
-COPY "./submodules/netPI-nodered-npix-rs485/node-red-contrib-npix-rs485/*" "./submodules/netPI-nodered-npix-rs485/node-red-contrib-npix-rs485/locales/en-US/*" /tmp/
-
-#install node
-RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-rs485 /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/ /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
-    && mv /tmp/25-serial-rs485.js /tmp/25-serial-rs485.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs485 \
-    && mv /tmp/25-serial-rs485.json /usr/lib/node_modules/node-red-contrib-npix-rs485/locales/en-US \
-    && cd /usr/lib/node_modules/node-red-contrib-npix-rs485 \
-    && npm install --unsafe-perm \
-#clean up
-    && rm -rf /tmp/* 
-
-# -------------------- Install NPIX RS232 nodes and all dependencies --------------------
-
-
-COPY "./submodules/netPI-nodered-npix-rs232/node-red-contrib-npix-rs232/*" "./submodules/netPI-nodered-npix-rs232/node-red-contrib-npix-rs232/locales/en-US/*" /tmp/
-
-#install node
-RUN mkdir /usr/lib/node_modules/node-red-contrib-npix-rs232 /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/ /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
-    && mv /tmp/25-serial-rs232.js /tmp/25-serial-rs232.html /tmp/package.json -t /usr/lib/node_modules/node-red-contrib-npix-rs232 \
-    && mv /tmp/25-serial-rs232.json /usr/lib/node_modules/node-red-contrib-npix-rs232/locales/en-US \
-    && cd /usr/lib/node_modules/node-red-contrib-npix-rs232 \
-    && npm install --unsafe-perm \
 #clean up
     && rm -rf /tmp/* 
 

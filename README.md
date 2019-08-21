@@ -15,7 +15,6 @@ Base of the two image tags `rte3` and `core3` builds [debian](https://www.balena
 
 Node | Node 
 :--- |:---
-netpi-nodered-npix-rs232 | netpi-nodered-npix-rs485 
 netpi-nodered-npix-io | netpi-nodered-npix-ai
 netpi-nodered-user-leds | netpi-nodered-nxpix-leds
 node-red-contrib-generic-ble | node-red-contrib-modbus
@@ -48,15 +47,17 @@ To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device
 
 To prevent the container from failing to load the bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
 
+To grant acccess to the GPIO signals in general the `/dev/gpiomem` host device needs to be added to the container.
+
 netPI RTE 3 target:
 
 To grant access to the onboard netX industrial network controller the `/dev/spidev0.0` host device needs to be added to the container.
 
 To grant access to the onboard FRAM memory the `/dev/i2c-1` host device needs to be added to the container.
 
-Optional NPIX-RS232 and NPIX-RS485 modules:
+Optional NPIX-RS232 and NPIX-RS485 serial port modules:
 
-To grant access to serial port NPIX expansion modules the device `/dev/ttyS0` needs to be added to the container. The tty device is available only if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.
+To grant access to serial port NPIX expansion modules the device `/dev/ttyS0` needs to be added to the container. This tty device is only available if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.(Remember to set GPIO 17 to '1' to enable NPIX-RS485 REV#2 module and its TX/RX auto direction feature).
 
 ##### Privileged mode
 
@@ -89,6 +90,7 @@ Parameter | Value | Remark
 *Restart policy* | **always**
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
+*Runtime > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** |
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional, NPIX serial
 *Runtime > Privileged mode* | **On** |
 
@@ -102,6 +104,7 @@ Parameter | Value | Remark
 *Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** |
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** |
+*Runtime > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** |
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** |
 *Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** |
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional, NPIX serial
