@@ -22,6 +22,7 @@ node-red-contrib-opcua |node-red-dashboard
 node-red-contrib-ibm-watson-iot |node-red-contrib-azure-iot-hub
 node-red-contrib-influxdb | node-red-node-serialport
 node-red-contrib-fieldbus (tag `rte3`) | node-red-contrib-fram (tag `rte3`)
+node-red-contrib-canbus
 
 #### Container prerequisites
 
@@ -119,6 +120,10 @@ Pulling the image may take a while (5-10mins). Sometimes it may take too long an
 The container starts Node-RED automatically when started.
 
 Open Node-RED in your browser with `http://<netPI-ip-address>:1880` (NOT https://) e.g. `http://192.168.0.1:1880`. 
+
+#### Tips & Tricks
+
+For additional help or information visit the Hilscher Forum at https://forum.hilscher.com/
 
 #### Automated build
 

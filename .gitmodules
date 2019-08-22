@@ -16,9 +16,3 @@
 [submodule "submodules/netPI-nodered-npix-ai"]
 	path = submodules/netPI-nodered-npix-ai
 	url = https://github.com/HilscherAutomation/netPI-nodered-npix-ai
-[submodule "submodules/netPI-nodered-npix-rs232"]
-	path = submodules/netPI-nodered-npix-rs232
-	url = https://github.com/HilscherAutomation/netPI-nodered-npix-rs232
-[submodule "submodules/netPI-nodered-npix-rs485"]
-	path = submodules/netPI-nodered-npix-rs485
-	url = https://github.com/HilscherAutomation/netPI-nodered-npix-rs485
