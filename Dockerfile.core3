@@ -49,7 +49,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.0.9
+ENV HILSCHERNETPI_NODERED_VERSION 1.1.0
 
 #tag
 ENV IMAGE_TAG "CORE3"
