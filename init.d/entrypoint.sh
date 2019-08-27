@@ -17,7 +17,7 @@ fi
 
 if [[ $IMAGE_TAG == "RTE3" ]]; then
   # start Node-RED as background task
-  /opt/cifx/checkdevicetype | xargs /etc/init.d/nodered.sh start
+  /etc/init.d/nodered.sh start netPI
   # start Fieldbus Web configurator as background task
   /etc/init.d/webconfig.sh start
 fi

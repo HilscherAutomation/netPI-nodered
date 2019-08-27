@@ -121,6 +121,8 @@ The container starts Node-RED automatically when started.
 
 Open Node-RED in your browser with `http://<netPI-ip-address>:1880` (NOT https://) e.g. `http://192.168.0.1:1880`. 
 
+Node-RED will ask you for a login. Logon to it with any user account (at least `admin`) you have created on netPI using its control panel.
+
 #### Tips & Tricks
 
 For additional help or information visit the Hilscher Forum at https://forum.hilscher.com/

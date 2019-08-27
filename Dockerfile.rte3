@@ -49,7 +49,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.0.9
+ENV HILSCHERNETPI_NODERED_VERSION 1.1.0
 
 #tag     
 ENV IMAGE_TAG "RTE3"
@@ -69,7 +69,13 @@ COPY "./init.d/*" /etc/init.d/
 RUN apt-get update  \
     && curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -  \
     && apt-get install -y nodejs  \
-    && npm install -g --unsafe-perm node-red
+    && npm install -g --unsafe-perm node-red \
+    && sed -i -e 's;//adminAuth: {;adminAuth: require("./user-authentication.js"),\n    //adminAuth: {;' /usr/lib/node_modules/node-red/settings.js \
+    && mkdir -p /root/.node-red/node_modules \
+    && cd /root/.node-red \
+    && npm install when request
+
+COPY "./auth/*" /root/.node-red/
 
 # -------------------- Install common tools --------------------
 
@@ -102,7 +108,7 @@ RUN apt-get install libboost-filesystem1.62-dev libboost-date-time1.62-dev libja
     && sed -i -e 's;"configuration-file-path": "/opt/node-red/.userdir";\"configuration-file-path": "/root/.node-red/";' ServerSettings.json \
     && sed -i -e 's;"platform": "ntijcxgb";\"platform": "npi3";' ServerSettings.json \
 #install fieldbus nodes
-    && mkdir /root/.node-red \
+    && mkdir -p /root/.node-red \
     && mv /tmp/fieldbusSettings.json /root/.node-red \
     && mkdir -p /root/.node-red/node_modules/fieldbus/lib \
     && mv /tmp/10-fieldbus.html /tmp/10-fieldbus.js /tmp/package.json -t /root/.node-red/node_modules/fieldbus \
@@ -206,7 +212,9 @@ RUN cd /usr/lib/ \
 # -------------------- Install S7 communication nodes and all dependencies --------------------
 
 RUN cd /usr/lib/ \
-    && npm install node-red-contrib-s7comm
+    && npm install node-red-contrib-s7comm \
+    && cd /usr/lib/node_modules/node-red-contrib-s7comm/node_modules \
+    && npm install net-keepalive
 
 # -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
 

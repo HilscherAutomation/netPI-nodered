@@ -69,7 +69,13 @@ COPY "./init.d/*" /etc/init.d/
 RUN apt-get update  \
     && curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -  \
     && apt-get install -y nodejs  \
-    && npm install -g --unsafe-perm node-red
+    && npm install -g --unsafe-perm node-red \
+    && sed -i -e 's;//adminAuth: {;adminAuth: require("./user-authentication.js"),\n    //adminAuth: {;' /usr/lib/node_modules/node-red/settings.js \
+    && mkdir -p /root/.node-red/node_modules \
+    && cd /root/.node-red \
+    && npm install when request
+
+COPY "./auth/*" /root/.node-red/
 
 # -------------------- Install common tools --------------------
 
@@ -152,7 +158,9 @@ RUN cd /usr/lib/ \
 # -------------------- Install S7 communication nodes and all dependencies --------------------
 
 RUN cd /usr/lib/ \
-    && npm install node-red-contrib-s7comm
+    && npm install node-red-contrib-s7comm \
+    && cd /usr/lib/node_modules/node-red-contrib-s7comm/node_modules \
+    && npm install net-keepalive
 
 # -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
 
