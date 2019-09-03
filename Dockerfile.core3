@@ -49,7 +49,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.1.0
+ENV HILSCHERNETPI_NODERED_VERSION 1.2.0
 
 #tag
 ENV IMAGE_TAG "CORE3"
@@ -69,11 +69,26 @@ COPY "./init.d/*" /etc/init.d/
 RUN apt-get update  \
     && curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -  \
     && apt-get install -y nodejs  \
-    && npm install -g --unsafe-perm node-red \
-    && sed -i -e 's;//adminAuth: {;adminAuth: require("./user-authentication.js"),\n    //adminAuth: {;' /usr/lib/node_modules/node-red/settings.js \
+    && npm install -g --unsafe-perm node-red@0.20.*
+
+#configure user login & https security
+RUN sed -i -e 's+//adminAuth: {+adminAuth: require("./user-authentication.js"),\n    //adminAuth: {+' /usr/lib/node_modules/node-red/settings.js \
+
+    && sed -i -e 's+//var fs = require("fs");+var fs = require("fs");+' /usr/lib/node_modules/node-red/settings.js \
+    && sed -i -e "s+//    key: fs.readFileSync('privatekey.pem'),+https: {\n    key: fs.readFileSync('/root/.node-red/certs/node-key.pem'),+" /usr/lib/node_modules/node-red/settings.js \
+    && sed -i -e "s+//    cert: fs.readFileSync('certificate.pem')+cert: fs.readFileSync('/root/.node-red/certs/node-cert.pem')\n    },+" /usr/lib/node_modules/node-red/settings.js \
+    && sed -i -e "s+//requireHttps: true,+requireHttps: true,+" /usr/lib/node_modules/node-red/settings.js \
+    
     && mkdir -p /root/.node-red/node_modules \
     && cd /root/.node-red \
-    && npm install when request
+    && npm install when request \
+
+    && mkdir -p /root/.node-red/certs \
+    && cd /root/.node-red/certs \
+
+    && openssl genrsa -out ./node-key.pem 2048 \
+    && openssl req -new -sha256 -key ./node-key.pem -out ./node-csr.pem -subj "/C=DE/ST=Hessen/L=Hattersheim/O=Hilscher/OU=Hilscher/CN=myown/emailAddress=myown@hilscher.com" \
+    && openssl x509 -req -in ./node-csr.pem -signkey ./node-key.pem -out ./node-cert.pem
 
 COPY "./auth/*" /root/.node-red/
 

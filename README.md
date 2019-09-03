@@ -38,11 +38,11 @@ Use tag `rte3` for device netPI RTE 3 (NIOT-E-NPI3-51-EN-RE).
 
 The container needs to run in `host` network mode. 
 
-Using this mode makes port mapping unnecessary since all the container's used ports (1880) are exposed to the host automatically.
+Using this mode makes port mapping unnecessary since all the used container ports (like 1880) are exposed to the host automatically.
 
 ##### Host devices
 
-All targets:
+netPI CORE 3 and netPI RTE 3 targets:
 
 To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. 
 
@@ -50,15 +50,14 @@ To prevent the container from failing to load the bluetooth chip with firmware (
 
 To grant acccess to the GPIO signals in general the `/dev/gpiomem` host device needs to be added to the container.
 
-netPI RTE 3 target:
+To grant access to serial port NPIX expansion modules NPIX-RS232 or NPIX-RS485 the device `/dev/ttyS0` needs to be added to the container. This tty device is only available if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.(set GPIO 17 to '1' to activate NPIX-RS485 REV#2 module TX/RX auto direction feature).
+
+netPI RTE 3 target only:
 
 To grant access to the onboard netX industrial network controller the `/dev/spidev0.0` host device needs to be added to the container.
 
 To grant access to the onboard FRAM memory the `/dev/i2c-1` host device needs to be added to the container.
 
-Optional NPIX-RS232 and NPIX-RS485 serial port modules:
-
-To grant access to serial port NPIX expansion modules the device `/dev/ttyS0` needs to be added to the container. This tty device is only available if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.(Remember to set GPIO 17 to '1' to enable NPIX-RS485 REV#2 module and its TX/RX auto direction feature).
 
 ##### Privileged mode
 
@@ -68,7 +67,7 @@ netPI's secure reference software architecture prohibits root access to the Host
 
 ##### Environment Variables
 
-netPI RTE 3 target:
+netPI RTE 3 target only:
 
 The type of field network protocol can be specified that is loaded into netX industrial network controller through the following variable
 
@@ -119,9 +118,9 @@ Pulling the image may take a while (5-10mins). Sometimes it may take too long an
 
 The container starts Node-RED automatically when started.
 
-Open Node-RED in your browser with `http://<netPI-ip-address>:1880` (NOT https://) e.g. `http://192.168.0.1:1880`. 
+Node-RED supports https secured web communication only. Open it in your browser with `https://<netPI-ip-address>:1880` e.g. `https://192.168.0.1:1880`.
 
-Node-RED will ask you for a login. Logon to it with any user account (at least `admin`) you have created on netPI using its control panel.
+Node-RED is protected against unauthorized access and will ask you for a login. Login with any user credentials (at least `admin`) created on netPI in the control panel settings.
 
 #### Tips & Tricks
 
@@ -131,7 +130,7 @@ For additional help or information visit the Hilscher Forum at https://forum.hil
 
 The project complies with the scripting based [Dockerfile](https://docs.docker.com/engine/reference/builder/) method to build the image output file. Using this method is a precondition for an [automated](https://docs.docker.com/docker-hub/builds/) web based build process on DockerHub platform.
 
-DockerHub web platform is x86 CPU based, but an ARM CPU coded output file is needed for Raspberry systems. This is why the Dockerfile includes the [balena.io](https://balena.io/blog/building-arm-containers-on-any-x86-machine-even-dockerhub/) steps.
+DockerHub web platform is x86 CPU based, but an ARM CPU coded output file is needed for Raspberry pi systems. This is why the Dockerfile includes the [balena.io](https://balena.io/blog/building-arm-containers-on-any-x86-machine-even-dockerhub/) steps.
 
 #### License
 
