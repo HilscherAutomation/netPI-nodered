@@ -1,8 +1,41 @@
 #!/bin/bash +e
-# catch signals as PID 1 in a container
 
+#check if container is running in host mode
+if [[ -z `grep "docker0" /proc/net/dev` ]]; then
+  echo "Container not running in host mode. Sure you configured host network mode? Container stopped."
+  exit 143
+fi
+
+#check if container is running in privileged mode
+ip link add dummy0 type dummy >/dev/null 2>&1
+if [[ -z `grep "dummy0" /proc/net/dev` ]]; then
+  echo "Container not running in privileged mode. Sure you configured privileged mode? Container stopped."
+  exit 143
+else
+  # clean the dummy0 link
+  ip link delete dummy0 >/dev/null 2>&1
+fi
+
+# start dbus as background task
+/etc/init.d/dbus start
+
+pidbt=0
+
+# catch signals as PID 1 in a container
 # SIGNAL-handler
 term_handler() {
+
+  echo "stopping bluetooth daemon ..."
+  if [ $pidbt -ne 0 ]; then
+        kill -SIGTERM "$pidbt"
+        wait "$pidbt"
+        echo "bring hci0 down ..."
+        hciconfig hci0 down
+  fi
+
+  echo "terminating dbus ..."
+  /etc/init.d/dbus stop
+
 
   exit 143; # 128 + 15 -- SIGTERM
 }
@@ -10,36 +43,162 @@ term_handler() {
 # on callback, stop all started processes in term_handler
 trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SIGHUP
 
-if [[ $IMAGE_TAG == "CORE3" ]]; then
-  # start Node-RED as background task
-  /usr/bin/node-red &
+#check if we have a user management running
+httpUrl='https://127.0.0.1/getLandingPageStructure'
+rep=$(curl -k -s $httpUrl)
+if [[ $rep == *'model-name'* ]]; then
+  sed -i -e 's+//adminAuth: {+adminAuth: require("./user-authentication.js"),\n    //adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
+else
+  sed -i -e 's+adminAuth: require("./user-authentication.js"),\n    //adminAuth: {+//adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
 fi
 
-if [[ $IMAGE_TAG == "RTE3" ]]; then
-  # start Node-RED as background task
-  /etc/init.d/nodered.sh start netPI
+#make hardware dependent nodes dynamically available or unavailable
+
+#check 4DI4DO, NPIX-LEDs, USER-LEDs nodes support
+if [[ -e "/dev/gpiomem" ]]; then
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-npix-io" ]]; then
+    echo "Precondition for node-red-contrib-npix-io node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-npix-io /usr/lib/node_modules/
+  fi
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-user-leds" ]]; then
+    echo "Precondition for node-red-contrib-user-leds node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-user-leds /usr/lib/node_modules/
+  fi
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-npix-leds" ]]; then
+    echo "Precondition for node-red-contrib-npix-leds node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-npix-leds /usr/lib/node_modules/
+  fi
+else
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-npix-io" ]]; then
+    echo "Precondition for node-red-contrib-npix-io node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-npix-io
+  fi
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-user-leds" ]]; then
+    echo "Precondition for node-red-contrib-user-leds node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-user-leds
+  fi
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-npix-leds" ]]; then
+    echo "Precondition for node-red-contrib-npix-leds node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-npix-leds
+  fi
+fi
+
+#check FRAM, 4AI16U, CAN nodes support
+if [[ -e "/dev/i2c-1" ]]; then
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-fram" ]]; then
+    echo "Precondition for node-red-contrib-fram node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-fram /usr/lib/node_modules/
+  fi
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-npix-ai" ]]; then
+    echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/
+  fi
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-canbus" ]]; then
+    echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/
+  fi
+else
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-fram" ]]; then
+    echo "Precondition for node-red-contrib-fram node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-fram
+  fi
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-npix-ai" ]]; then
+    echo "Precondition for node-red-contrib-npix-ai node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-npix-ai
+  fi
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-canbus" ]]; then
+    echo "Precondition for node-red-contrib-canbus node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-canbus
+  fi
+fi
+
+
+#check serial port node support
+if [[ -e "/dev/ttyS0" ]]; then
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-node-serialport" ]]; then
+    echo "Precondition for node-red-node-serialport node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-node-serialport /usr/lib/node_modules/
+  fi
+else
+  if [[ -d "/usr/lib/node_modules/node-red-node-serialport" ]]; then
+    echo "Precondition for node-red-node-serialport node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-node-serialport
+  fi
+fi
+
+
+#check bluetooth node support
+if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
+  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-generic-ble" ]]; then
+    echo "Precondition for node-red-contrib-generic-ble node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/node-red-contrib-generic-ble /usr/lib/node_modules/
+  fi
+
+  #reset BCM chip (making sure get access even after container restart)
+  /opt/vc/bin/vcmailbox 0x38041 8 8 128 0 >/dev/null
+  sleep 1
+  /opt/vc/bin/vcmailbox 0x38041 8 8 128 1 >/dev/null
+  sleep 1
+
+  #load firmware to BCM chip and attach to hci0
+  hciattach /dev/ttyAMA0 bcm43xx 921600 noflow
+
+  #create hci0 device
+  hciconfig hci0 up
+
+  #start bluetooth daemon
+  /usr/libexec/bluetooth/bluetoothd -d &
+  pidbt="$!"
+
+else
+  if [[ -d "/usr/lib/node_modules/node-red-contrib-generic-ble" ]]; then
+    echo "Precondition for node-red-contrib-generic-ble node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/node-red-contrib-generic-ble
+  fi
+fi
+
+#check fieldbus node support
+if [[ -e "/dev/spidev0.0" ]]; then
+  if [[ -d "/usr/lib/node_modules_tmp/fieldbus" ]]; then
+    echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)." 
+    cp -r /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/
+  fi
+  if [[ -d "/usr/lib/node_modules_tmp/WebConfigurator" ]]; then
+    cp -r /usr/lib/node_modules_tmp/WebConfigurator /usr/lib/node_modules/
+  fi
+
+  if [ "$FIELD" = "pns" ]
+  then
+    firmware="R160D000.nxf"
+  elif [ "$FIELD" = "eis" ]
+  then
+    firmware="R160H000.nxf"
+  else
+    firmware="R160D000.nxf"
+  fi
+
+  #copy firmware to location where driver will load it from
+  if [ ! -f /opt/cifx/deviceconfig/FW/channel0/*.nxf ]; then
+    cp /root/.node-red/FWPool/$firmware /opt/cifx/deviceconfig/FW/channel0/$firmware
+  fi
+
   # start Fieldbus Web configurator as background task
-  /etc/init.d/webconfig.sh start
+  cd /usr/lib/node_modules/WebConfigurator/ServerContent/
+  node app.js &
+else
+  if [[ -d "/usr/lib/node_modules/fieldbus" ]]; then
+    echo "Precondition for node-red-fieldbus node(s) not met. Removing node(s)." 
+    rm -r /usr/lib/node_modules/fieldbus
+  fi
+
+  if [[ -d "/usr/lib/node_modules/WebConfigurator" ]]; then
+    mv -r /usr/lib/node_modules/WebConfigurator
+  fi
+
 fi
 
-
-# start dbus as background task
-/etc/init.d/dbus start
-
-#reset BCM chip (making sure get access even after container restart)
-/opt/vc/bin/vcmailbox 0x38041 8 8 128 0
-sleep 1
-/opt/vc/bin/vcmailbox 0x38041 8 8 128 1
-sleep 1
-
-#load firmware to BCM chip and attach to hci0
-hciattach /dev/ttyAMA0 bcm43xx 921600 noflow
-
-#create hci0 device
-hciconfig hci0 up
-
-#start bluetooth daemon
-/usr/libexec/bluetooth/bluetoothd -d &
+# start Node-RED as background task
+/usr/bin/node-red &
 
 # wait forever not to exit the container
 while true
