@@ -50,7 +50,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.3.0
+ENV HILSCHERNETPI_NODERED_VERSION 1.3.1
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -242,6 +242,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && mv /usr/lib/node_modules/node-red-contrib-canbus /usr/lib/node_modules_tmp \
 # -------------------- Install Bluetooth stack and all dependencies --------------------
  && cd /usr/lib/ \
+ && apt-get install libudev-dev \
  && npm install node-red-contrib-generic-ble@3.1.0 \
  && mv /usr/lib/node_modules/node-red-contrib-generic-ble /usr/lib/node_modules_tmp \
  && apt-get install -y dbus git libglib2.0-dev \

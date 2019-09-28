@@ -21,9 +21,9 @@ The image provided hereunder deploys a container with installed Debian, Node-RED
 
 Base of the image builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with installed Internet of Things flow-based programming web-tool [Node-RED](https://nodered.org/).
 
-Additionally the nodes `node-red-contrib-opcua`, `node-red-dashboard`, `node-red-contrib-ibm-watson-iot`, `node-red-contrib-azure-iot-hub`, `node-red-contrib-modbus`, `node-red-contrib-influxdb`, `node-red-contrib-mssql-plus` are installed.
+Additionally the nodes [node-red-contrib-opcua](https://flows.nodered.org/node/node-red-contrib-opcua), [node-red-dashboard](https://flows.nodered.org/node/node-red-dashboard), [node-red-contrib-ibm-watson-iot](https://www.npmjs.com/package/node-red-contrib-ibm-watson-iot), [node-red-contrib-azure-iot-hub](https://flows.nodered.org/node/node-red-contrib-azure-iot-hub), [node-red-contrib-modbus](https://flows.nodered.org/node/node-red-contrib-modbus), [node-red-contrib-influxdb](https://flows.nodered.org/node/node-red-contrib-influxdb), [node-red-contrib-mssql-plus](https://flows.nodered.org/node/node-red-contrib-mssql-plus) come preinstalled.
 
-Depending on the available/added devices (/dev/) found during runtime the nodes `node-red-contrib-npix-io (/dev/gpiomem)`, `node-red-contrib-npix-ai (/dev/i2c-1)`, `node-red-contrib-user-leds (/dev/gpiomem)`, `node-red-contrib-npix-leds (/dev/gpiomem)`, `node-red-contrib-generic-ble (/dev/ttyAMA0,/dev/vcio)`, `node-red-node-serialport (/dev/ttyS0)`, `node-red-contrib-canbus (/dev/i2c-1)`, `node-red-contrib-fieldbus (/dev/spidev0.0)`, `node-red-contrib-fram (/dev/i2c-1)` are installed.
+Depending on the devices /dev/... found during the container start period the nodes [node-red-contrib-npix-io](https://github.com/HilscherAutomation/netPI-nodered-npix-io/tree/master/node-red-contrib-npix-io) (`/dev/gpiomem`), [node-red-contrib-npix-ai](https://github.com/HilscherAutomation/netPI-nodered-npix-ai/tree/master/node-red-contrib-npix-ai) (`/dev/i2c-1`), [node-red-contrib-user-leds](https://github.com/HilscherAutomation/netPI-nodered-user-leds/tree/master/node-red-contrib-user-leds) (`/dev/gpiomem`), [node-red-contrib-npix-leds](https://github.com/HilscherAutomation/netPI-nodered-npix-leds/tree/master/node-red-contrib-npix-leds) (`/dev/gpiomem`), [node-red-contrib-generic-ble](https://www.npmjs.com/package/node-red-contrib-generic-ble) (`/dev/ttyAMA0,/dev/vcio`), [node-red-node-serialport](https://flows.nodered.org/node/node-red-node-serialport) (`/dev/ttyS0`), [node-red-contrib-canbus](https://flows.nodered.org/node/node-red-contrib-canbus) (`/dev/i2c-1`), [node-red-contrib-fieldbus](https://github.com/HilscherAutomation/netPI-nodered-fieldbus) (`/dev/spidev0.0`), [node-red-contrib-fram](https://github.com/HilscherAutomation/netPI-nodered-fram/tree/master/node-red-contrib-fram) (`/dev/i2c-1`) are dynamically installed during runtime.
 
 ### Container setup
 
@@ -31,19 +31,24 @@ Depending on the available/added devices (/dev/) found during runtime the nodes 
 
 The container needs to run in `host` network mode. 
 
-Using this mode makes port mapping unnecessary since all the used container ports (like 1880) are exposed to the host automatically.
+This mode makes port mapping unnecessary. The following TCP/UDP container ports are exposed to the host automatically
+
+Used port | Protocol | By application | Remark
+:---------|:------ |:------ |:-----
+*1880* | TCP | Node-RED
+*9000* | TCP | Fieldbus configurator | if node-red-contrib-fieldbus active
 
 #### Host devices
 
-To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. 
-
-To prevent the container from failing to load the bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
+To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device needs to be added to the container. To prevent the container from failing to load the bluetooth chip with firmware (after soft restart), the chip is physically reset during each container start. To grant access to the reset logic the `/dev/vcio` host device needs to be added to the container.
 
 To grant acccess to the GPIO signals in general the `/dev/gpiomem` host device needs to be added to the container.
 
-To grant access to serial port NPIX expansion modules NPIX-RS232 or NPIX-RS485 the device `/dev/ttyS0` needs to be added to the container. This tty device is only available if an inserted NPIX module has been recognized by netPI during boot process. Else the container will fail to start.(set GPIO 17 to '1' to activate NPIX-RS485 REV#2 module TX/RX auto direction feature).
+For NPIX-RS232, NPIX-RS485 modules support:
 
-For netPI RTE 3 target additionally:
+To grant access to the serial port the device `/dev/ttyS0` needs to be added to the container. It needs an NPIX module attached during system boot process to be available. (NPIX-RS485 Remark: set GPIO 17 to '1' to activate NPIX-RS485 REV#2 module TX/RX auto direction feature).
+
+For netPI RTE 3 target:
 
 To grant access to the onboard netX industrial network controller the `/dev/spidev0.0` host device needs to be added to the container.
 
