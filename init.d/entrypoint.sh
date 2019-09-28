@@ -56,83 +56,46 @@ fi
 
 #check 4DI4DO, NPIX-LEDs, USER-LEDs nodes support
 if [[ -e "/dev/gpiomem" ]]; then
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-npix-io" ]]; then
-    echo "Precondition for node-red-contrib-npix-io node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-npix-io /usr/lib/node_modules/
-  fi
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-user-leds" ]]; then
-    echo "Precondition for node-red-contrib-user-leds node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-user-leds /usr/lib/node_modules/
-  fi
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-npix-leds" ]]; then
-    echo "Precondition for node-red-contrib-npix-leds node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-npix-leds /usr/lib/node_modules/
-  fi
+  echo "Precondition for node-red-contrib-npix-io node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-io /usr/lib/node_modules/node-red-contrib-npix-io
+  echo "Precondition for node-red-contrib-user-leds node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-user-leds /usr/lib/node_modules/node-red-contrib-user-leds
+  echo "Precondition for node-red-contrib-npix-leds node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-leds /usr/lib/node_modules/node-red-contrib-npix-leds
 else
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-npix-io" ]]; then
-    echo "Precondition for node-red-contrib-npix-io node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-npix-io
-  fi
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-user-leds" ]]; then
-    echo "Precondition for node-red-contrib-user-leds node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-user-leds
-  fi
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-npix-leds" ]]; then
-    echo "Precondition for node-red-contrib-npix-leds node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-npix-leds
-  fi
+  rm /usr/lib/node_modules/node-red-contrib-npix-io
+  rm /usr/lib/node_modules/node-red-contrib-user-leds
+  rm /usr/lib/node_modules/node-red-contrib-npix-leds
 fi
 
 #check FRAM, 4AI16U, CAN nodes support
 if [[ -e "/dev/i2c-1" ]]; then
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-fram" ]]; then
-    echo "Precondition for node-red-contrib-fram node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-fram /usr/lib/node_modules/
-  fi
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-npix-ai" ]]; then
-    echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/
-  fi
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-canbus" ]]; then
-    echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/
-  fi
+  echo "Precondition for node-red-contrib-fram node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-fram /usr/lib/node_modules/node-red-contrib-fram 
+  echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/node-red-contrib-npix-ai
+  echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/node-red-contrib-canbus
 else
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-fram" ]]; then
-    echo "Precondition for node-red-contrib-fram node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-fram
-  fi
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-npix-ai" ]]; then
-    echo "Precondition for node-red-contrib-npix-ai node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-npix-ai
-  fi
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-canbus" ]]; then
-    echo "Precondition for node-red-contrib-canbus node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-canbus
-  fi
+  rm -r /usr/lib/node_modules/node-red-contrib-fram
+  rm -r /usr/lib/node_modules/node-red-contrib-npix-ai
+  rm -r /usr/lib/node_modules/node-red-contrib-canbus
 fi
 
 
 #check serial port node support
 if [[ -e "/dev/ttyS0" ]]; then
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-node-serialport" ]]; then
-    echo "Precondition for node-red-node-serialport node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-node-serialport /usr/lib/node_modules/
-  fi
+  echo "Precondition for node-red-node-serialport node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-node-serialport /usr/lib/node_modules/node-red-node-serialport 
 else
-  if [[ -d "/usr/lib/node_modules/node-red-node-serialport" ]]; then
-    echo "Precondition for node-red-node-serialport node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-node-serialport
-  fi
+  rm /usr/lib/node_modules/node-red-node-serialport
 fi
 
 
 #check bluetooth node support
 if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
-  if [[ -d "/usr/lib/node_modules_tmp/node-red-contrib-generic-ble" ]]; then
-    echo "Precondition for node-red-contrib-generic-ble node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/node-red-contrib-generic-ble /usr/lib/node_modules/
-  fi
+  echo "Precondition for node-red-contrib-generic-ble node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-generic-ble /usr/lib/node_modules/node-red-contrib-generic-ble
 
   #reset BCM chip (making sure get access even after container restart)
   /opt/vc/bin/vcmailbox 0x38041 8 8 128 0 >/dev/null
@@ -151,21 +114,13 @@ if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
   pidbt="$!"
 
 else
-  if [[ -d "/usr/lib/node_modules/node-red-contrib-generic-ble" ]]; then
-    echo "Precondition for node-red-contrib-generic-ble node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/node-red-contrib-generic-ble
-  fi
+  rm /usr/lib/node_modules/node-red-contrib-generic-ble
 fi
 
 #check fieldbus node support
 if [[ -e "/dev/spidev0.0" ]]; then
-  if [[ -d "/usr/lib/node_modules_tmp/fieldbus" ]]; then
-    echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)." 
-    cp -r /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/
-  fi
-  if [[ -d "/usr/lib/node_modules_tmp/WebConfigurator" ]]; then
-    cp -r /usr/lib/node_modules_tmp/WebConfigurator /usr/lib/node_modules/
-  fi
+  echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)." 
+  ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
 
   if [ "$FIELD" = "pns" ]
   then
@@ -179,22 +134,14 @@ if [[ -e "/dev/spidev0.0" ]]; then
 
   #copy firmware to location where driver will load it from
   if [ ! -f /opt/cifx/deviceconfig/FW/channel0/*.nxf ]; then
-    cp /root/.node-red/FWPool/$firmware /opt/cifx/deviceconfig/FW/channel0/$firmware
+    cp /root/.node-red/FWnetPI/$firmware /opt/cifx/deviceconfig/FW/channel0/$firmware
   fi
 
   # start Fieldbus Web configurator as background task
-  cd /usr/lib/node_modules/WebConfigurator/ServerContent/
+  cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/
   node app.js &
 else
-  if [[ -d "/usr/lib/node_modules/fieldbus" ]]; then
-    echo "Precondition for node-red-fieldbus node(s) not met. Removing node(s)." 
-    rm -r /usr/lib/node_modules/fieldbus
-  fi
-
-  if [[ -d "/usr/lib/node_modules/WebConfigurator" ]]; then
-    mv -r /usr/lib/node_modules/WebConfigurator
-  fi
-
+  rm /usr/lib/node_modules/fieldbus
 fi
 
 # start Node-RED as background task
