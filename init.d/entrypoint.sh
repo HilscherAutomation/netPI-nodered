@@ -63,9 +63,9 @@ if [[ -e "/dev/gpiomem" ]]; then
   echo "Precondition for node-red-contrib-npix-leds node(s) met. Installing node(s)." 
   ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-leds /usr/lib/node_modules/node-red-contrib-npix-leds
 else
-  rm /usr/lib/node_modules/node-red-contrib-npix-io
-  rm /usr/lib/node_modules/node-red-contrib-user-leds
-  rm /usr/lib/node_modules/node-red-contrib-npix-leds
+  rm -f /usr/lib/node_modules/node-red-contrib-npix-io
+  rm -f /usr/lib/node_modules/node-red-contrib-user-leds
+  rm -f /usr/lib/node_modules/node-red-contrib-npix-leds
 fi
 
 #check FRAM, 4AI16U, CAN nodes support
@@ -77,9 +77,9 @@ if [[ -e "/dev/i2c-1" ]]; then
   echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
   ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/node-red-contrib-canbus
 else
-  rm -r /usr/lib/node_modules/node-red-contrib-fram
-  rm -r /usr/lib/node_modules/node-red-contrib-npix-ai
-  rm -r /usr/lib/node_modules/node-red-contrib-canbus
+  rm -f /usr/lib/node_modules/node-red-contrib-fram
+  rm -f /usr/lib/node_modules/node-red-contrib-npix-ai
+  rm -f /usr/lib/node_modules/node-red-contrib-canbus
 fi
 
 
@@ -88,7 +88,7 @@ if [[ -e "/dev/ttyS0" ]]; then
   echo "Precondition for node-red-node-serialport node(s) met. Installing node(s)." 
   ln -s -f /usr/lib/node_modules_tmp/node-red-node-serialport /usr/lib/node_modules/node-red-node-serialport 
 else
-  rm /usr/lib/node_modules/node-red-node-serialport
+  rm -f /usr/lib/node_modules/node-red-node-serialport
 fi
 
 
