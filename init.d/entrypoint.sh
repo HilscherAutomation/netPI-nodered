@@ -114,7 +114,7 @@ if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
   pidbt="$!"
 
 else
-  rm /usr/lib/node_modules/node-red-contrib-generic-ble
+  rm -f /usr/lib/node_modules/node-red-contrib-generic-ble
 fi
 
 #check fieldbus node support
@@ -141,7 +141,7 @@ if [[ -e "/dev/spidev0.0" ]]; then
   cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/
   node app.js &
 else
-  rm /usr/lib/node_modules/fieldbus
+  rm -f /usr/lib/node_modules/fieldbus
 fi
 
 # start Node-RED as background task
