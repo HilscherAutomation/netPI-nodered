@@ -1,7 +1,7 @@
 #STEP 1 of multistage build ---Compile Bluetooth stack-----
 
 #use armv7hf compatible base image
-FROM balenalib/armv7hf-debian:stretch as builder
+FROM balenalib/armv7hf-debian:stretch-20191223 as builder
 
 #enable cross compiling (comment out next line if built on Raspberry Pi) 
 RUN [ "cross-build-start" ]
@@ -35,7 +35,7 @@ RUN [ "cross-build-end" ]
 #STEP 2 of multistage build ----Create the final image-----
 
 #use armv7hf compatible base image
-FROM balenalib/armv7hf-debian:stretch
+FROM balenalib/armv7hf-debian:stretch-20191223
 
 #dynamic build arguments coming from the /hooks/build file
 ARG BUILD_DATE
@@ -50,7 +50,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 RUN [ "cross-build-start" ]
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.3.1
+ENV HILSCHERNETPI_NODERED_VERSION 1.3.2
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
