@@ -43,13 +43,23 @@ term_handler() {
 # on callback, stop all started processes in term_handler
 trap 'kill ${!}; term_handler' SIGINT SIGKILL SIGTERM SIGQUIT SIGTSTP SIGSTOP SIGHUP
 
-#check if we have a user management running
+#check if we have a user V1 management running
 httpUrl='https://127.0.0.1/getLandingPageStructure'
 rep=$(curl -k -s $httpUrl)
 if [[ $rep == *'model-name'* ]]; then
-  sed -i -e 's+//adminAuth: {+adminAuth: require("./user-authentication.js"),\n    //adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
+  sed -i -e 's+//adminAuth: {+adminAuth: require("./user-authentication_v1.js"),\n    //adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
 else
-  sed -i -e 's+adminAuth: require("./user-authentication.js"),\n    //adminAuth: {+//adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
+  sed -i -e 's+adminAuth: require("./user-authentication_v1.js"),\n    //adminAuth: {+//adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
+fi
+
+
+#check if we have a user V2 management running
+httpUrl='https://127.0.0.1/cockpit/login'
+rep=$(curl -k -s $httpUrl)
+if [[ $rep == *'Authentication failed'* ]]; then
+  sed -i -e 's+//adminAuth: {+adminAuth: require("./user-authentication_v2.js"),\n    //adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
+else
+  sed -i -e 's+adminAuth: require("./user-authentication_v2.js"),\n    //adminAuth: {+//adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
 fi
 
 #make hardware dependent nodes dynamically available or unavailable
