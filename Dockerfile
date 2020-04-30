@@ -4,7 +4,7 @@
 FROM balenalib/armv7hf-debian:stretch-20191223 as builder
 
 #environment variables
-ENV BLUEZ_VERSION 5.50 
+ENV BLUEZ_VERSION 5.54
 
 RUN apt-get update && apt-get install -y \
     build-essential wget \
@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.3.3
+ENV HILSCHERNETPI_NODERED_VERSION 1.4.0
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -94,7 +94,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && apt-get update && apt-get install build-essential python-dev python-pip python-setuptools \
  && curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -  \
  && apt-get install -y nodejs  \
- && npm install -g --unsafe-perm node-red@0.20.8 \
+ && npm install -g --unsafe-perm node-red@1.0.6 \
  && npm config set package-lock false \
 #configure user login & https security
  && sed -i -e 's+//var fs = require("fs");+var fs = require("fs");+' /usr/lib/node_modules/node-red/settings.js \
