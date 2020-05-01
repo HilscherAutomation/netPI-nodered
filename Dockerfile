@@ -1,7 +1,7 @@
 #STEP 1 of multistage build ---Compile Bluetooth stack-----
 
 #use armv7hf compatible base image
-FROM balenalib/armv7hf-debian:stretch-20191223 as builder
+FROM balenalib/armv7hf-debian:buster-20191223 as builder
 
 #environment variables
 ENV BLUEZ_VERSION 5.54
@@ -29,7 +29,7 @@ RUN wget -P /tmp/ https://www.kernel.org/pub/linux/bluetooth/bluez-${BLUEZ_VERSI
 #STEP 2 of multistage build ----Create the final image-----
 
 #use armv7hf compatible base image
-FROM balenalib/armv7hf-debian:stretch-20191223
+FROM balenalib/armv7hf-debian:buster-20191223
 
 #dynamic build arguments coming from the /hooks/build file
 ARG BUILD_DATE
@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.4.0
+ENV HILSCHERNETPI_NODERED_VERSION 1.5.0
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -49,31 +49,30 @@ LABEL maintainer="netpi@hilscher.com" \
       description="Node-RED including common and netPI specific Node-RED nodes" \
       tag=$IMAGE_TAG
 
-
 # -------------------- Install netPI specific nodes --------------------------------------
 
 ARG FIELDBUS_NODE=netPI-nodered-fieldbus
-ARG FIELDBUS_NODE_VERSION=1.0.5
+ARG FIELDBUS_NODE_VERSION=1.1.0
 ARG FIELDBUS_NODE_DIR=/tmp/${FIELDBUS_NODE}-${FIELDBUS_NODE_VERSION}
 
 ARG FRAM_NODE=netPI-nodered-fram
-ARG FRAM_NODE_VERSION=1.1.0
+ARG FRAM_NODE_VERSION=1.2.0
 ARG FRAM_NODE_DIR=/tmp/${FRAM_NODE}-${FRAM_NODE_VERSION}
 
 ARG USER_LEDS_NODE=netPI-nodered-user-leds
-ARG USER_LEDS_NODE_VERSION=1.0.0
+ARG USER_LEDS_NODE_VERSION=1.1.0
 ARG USER_LEDS_NODE_DIR=/tmp/${USER_LEDS_NODE}-${USER_LEDS_NODE_VERSION}
 
 ARG NPIX_LEDS_NODE=netPI-nodered-npix-leds
-ARG NPIX_LEDS_NODE_VERSION=0.9.3
+ARG NPIX_LEDS_NODE_VERSION=1.0.0
 ARG NPIX_LEDS_NODE_DIR=/tmp/${NPIX_LEDS_NODE}-${NPIX_LEDS_NODE_VERSION}
 
 ARG NPIX_AI_NODE=netPI-nodered-npix-ai
-ARG NPIX_AI_NODE_VERSION=1.0.3
+ARG NPIX_AI_NODE_VERSION=1.1.0
 ARG NPIX_AI_NODE_DIR=/tmp/${NPIX_AI_NODE}-${NPIX_AI_NODE_VERSION}
 
 ARG NPIX_IO_NODE=netPI-nodered-npix-io
-ARG NPIX_IO_NODE_VERSION=1.0.2
+ARG NPIX_IO_NODE_VERSION=1.1.0
 ARG NPIX_IO_NODE_DIR=/tmp/${NPIX_IO_NODE}-${NPIX_IO_NODE_VERSION}
 
 
@@ -90,10 +89,10 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && tar -xvf /tmp/${NPIX_IO_NODE} -C /tmp/ \
  && tar -xvf /tmp/${NPIX_LEDS_NODE} -C /tmp/ \
 # -------------------- Install nodejs and Node-RED --------------------------------------
-#install node.js V8.x.x and Node-RED 0.20.x
- && apt-get update && apt-get install build-essential python-dev python-pip python-setuptools \
- && curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -  \
- && apt-get install -y nodejs  \
+#install node.js V12.x.x and Node-RED 1.0.x
+ && apt-get update && apt-get install build-essential python-dev python-pip python-setuptools git \
+ && curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -  \
+ && apt-get install -y nodejs \
  && npm install -g --unsafe-perm node-red@1.0.6 \
  && npm config set package-lock false \
 #configure user login & https security
@@ -114,7 +113,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && pip install RPi.GPIO \
 # -------------------- Install Fieldbus node and all dependencies --------------------
 # install all additional tools
- && apt-get install libboost-filesystem1.62-dev libboost-date-time1.62-dev libjansson-dev p7zip-full \
+ && apt-get install libboost-filesystem-dev libboost-date-time-dev libjansson-dev p7zip-full \
 #install netx driver
  && dpkg -i ${FIELDBUS_NODE_DIR}/driver/netx-docker-pi-drv-1.1.3.deb \
 #compile program checking we are running on netPI RTE 3
@@ -150,8 +149,8 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && npm rebuild \
 #install fieldbus nodes wrapper library and generate needed libboost V1.61.0 links
  && mv ${FIELDBUS_NODE_DIR}/node-red-contrib-fieldbus/lib/fieldbus.node /usr/lib/node_modules_tmp/fieldbus/lib \
- && ln -s /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so.1.62.0 /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so.1.61.0 \
- && ln -s /usr/lib/arm-linux-gnueabihf/libboost_system.so.1.62.0 /usr/lib/arm-linux-gnueabihf/libboost_system.so.1.61.0 \
+ && ln -s /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so /usr/lib/arm-linux-gnueabihf/libboost_filesystem.so.1.64.0 \
+ && ln -s /usr/lib/arm-linux-gnueabihf/libboost_system.so /usr/lib/arm-linux-gnueabihf/libboost_system.so.1.64.0 \
 #install netx firmwares from zip
  && mkdir /opt/cifx/deviceconfig/FW/channel0 \
  && 7z -tzip -r -v: x "${FIELDBUS_NODE_DIR}/firmwares/FWPool.zip" -o/root/.node-red \
@@ -182,7 +181,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
     ${NPIX_LEDS_NODE_DIR}/node-red-contrib-npix-leds/package.json \
     -t /usr/lib/node_modules_tmp/node-red-contrib-npix-leds \
  && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-leds \
- && npm install \ 
+ && npm install \
 # -------------------- Install NPIX 4AI16U nodes and all dependencies --------------------
  && mkdir /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
  && mv ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/npixai.js \ 
@@ -190,6 +189,9 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
     ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/package.json \
     -t /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
  && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
+ && npm install \
+ && git clone https://github.com/jaycetde/node-ads1x15 /usr/lib/node_modules_tmp/node-red-contrib-npix-ai/node_modules/node-ads1x15 \
+ && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-ai/node_modules/node-ads1x15 \
  && npm install \
 # -------------------- Install NPIX 4DI4DO nodes and all dependencies --------------------
  && mkdir /usr/lib/node_modules_tmp/node-red-contrib-npix-io \
@@ -208,8 +210,6 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && npm install node-red-contrib-opcua@0.2.49 \
 # -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
  && npm install node-red-contrib-ibm-watson-iot@0.2.8 \
-# -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
- && npm install node-red-contrib-ibm-watson-iot \
 # -------------------- Install Microsoft Azure IoT Hub nodes and all dependencies --------------------
  && npm install node-red-contrib-azure-iot-hub@0.4.0 \
 # -------------------- Install influxdb node and all dependencies --------------------
@@ -228,15 +228,16 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && npm install node-red-node-serialport@0.8.6 \ 
  && mv /usr/lib/node_modules/node-red-node-serialport /usr/lib/node_modules_tmp \
 # -------------------- Install socketCAN nodes and all dependencies --------------------
- && cd /usr/lib/ \
- && npm install node-red-contrib-canbus@1.0.1 \
- && mv /usr/lib/node_modules/node-red-contrib-canbus /usr/lib/node_modules_tmp \
+ && git clone https://github.com/hilschernetpi/node-red-addons /tmp/node-red-addons \
+ && cd /tmp/node-red-addons/node-red-contrib-canbus \
+ && npm install \
+ && mv /tmp/node-red-addons/node-red-contrib-canbus /usr/lib/node_modules_tmp \
 # -------------------- Install Bluetooth stack and all dependencies --------------------
  && cd /usr/lib/ \
  && apt-get install libudev-dev \
  && npm install node-red-contrib-generic-ble@3.1.0 \
  && mv /usr/lib/node_modules/node-red-contrib-generic-ble /usr/lib/node_modules_tmp \
- && apt-get install -y dbus git libglib2.0-dev \
+ && apt-get install -y dbus libglib2.0-dev \
 #get BCM chip firmware 
  && mkdir /etc/firmware \
  && curl -o /etc/firmware/BCM43430A1.hcd -L https://github.com/OpenELEC/misc-firmware/raw/master/firmware/brcm/BCM43430A1.hcd \
