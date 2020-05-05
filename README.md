@@ -4,25 +4,34 @@
 [![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-nodered.svg)](https://registry.hub.docker.com/r/hilschernetpi/netpi-nodered/)&nbsp;
 [![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-nodered&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-nodered "Image last updated")&nbsp;
 
-Made for [netPI](https://www.netiot.com/netpi/), the Raspberry Pi 3B Architecture based industrial suited Open Edge Connectivity Ecosystem
-
-### Secured netPI Docker
-
-netPI features a restricted Docker protecting the system software's integrity by maximum. The restrictions are 
-
-* privileged mode is not automatically adding all host devices `/dev/` to a container
-* volume bind mounts to rootfs is not supported
-* the devices `/dev`,`/dev/mem`,`/dev/sd*`,`/dev/dm*`,`/dev/mapper`,`/dev/mmcblk*` cannot be added to a container
+Made for Raspberry Pi 3B architecture based devices and compatibles
 
 ### Container features
 
-The image provided hereunder deploys a container with installed Debian, Node-RED, netPI specific Node-RED nodes and several useful common Node-RED nodes maintained by the community.
+The image provided hereunder deploys a container with installed Debian, Node-RED, hardware specific Node-RED nodes and several useful common Node-RED nodes maintained by the community.
 
 Base of the image builds [debian](https://www.balena.io/docs/reference/base-images/base-images/) with installed Internet of Things flow-based programming web-tool [Node-RED](https://nodered.org/).
 
 Additionally the nodes [node-red-contrib-opcua](https://flows.nodered.org/node/node-red-contrib-opcua), [node-red-dashboard](https://flows.nodered.org/node/node-red-dashboard), [node-red-contrib-ibm-watson-iot](https://www.npmjs.com/package/node-red-contrib-ibm-watson-iot), [node-red-contrib-azure-iot-hub](https://flows.nodered.org/node/node-red-contrib-azure-iot-hub), [node-red-contrib-modbus](https://flows.nodered.org/node/node-red-contrib-modbus), [node-red-contrib-influxdb](https://flows.nodered.org/node/node-red-contrib-influxdb), [node-red-contrib-mssql-plus](https://flows.nodered.org/node/node-red-contrib-mssql-plus) come preinstalled.
 
 Depending on the devices /dev/... found during the container start period the nodes [node-red-contrib-npix-io](https://github.com/HilscherAutomation/netPI-nodered-npix-io/tree/master/node-red-contrib-npix-io) (`/dev/gpiomem`), [node-red-contrib-npix-ai](https://github.com/HilscherAutomation/netPI-nodered-npix-ai/tree/master/node-red-contrib-npix-ai) (`/dev/i2c-1`), [node-red-contrib-user-leds](https://github.com/HilscherAutomation/netPI-nodered-user-leds/tree/master/node-red-contrib-user-leds) (`/dev/gpiomem`), [node-red-contrib-npix-leds](https://github.com/HilscherAutomation/netPI-nodered-npix-leds/tree/master/node-red-contrib-npix-leds) (`/dev/gpiomem`), [node-red-contrib-generic-ble](https://www.npmjs.com/package/node-red-contrib-generic-ble) (`/dev/ttyAMA0,/dev/vcio`), [node-red-node-serialport](https://flows.nodered.org/node/node-red-node-serialport) (`/dev/ttyS0`), [node-red-contrib-canbus](https://flows.nodered.org/node/node-red-contrib-canbus) (`/dev/i2c-1`), [node-red-contrib-fieldbus](https://github.com/HilscherAutomation/netPI-nodered-fieldbus) (`/dev/spidev0.0`), [node-red-contrib-fram](https://github.com/HilscherAutomation/netPI-nodered-fram/tree/master/node-red-contrib-fram) (`/dev/i2c-1`) are dynamically installed during runtime.
+
+### Container hosts
+
+The container has been successfully tested on the following hosts
+
+netPI, model RTE 3, product name NIOT-E-NPI3-51-EN-RE
+netPI, model CORE 3, product name NIOT-E-NPI3-EN
+netFIELD Connect, product name NIOT-E-TPI51-EN-RE/NFLD
+Raspberry Pi, model 3B
+
+For some installed nodes particular hardware components are prerequisites to run.
+
+netPI devices specifically feature a restricted Docker protecting the system software's integrity by maximum. The restrictions are
+
+* privileged mode is not automatically adding all host devices `/dev/` to a container
+* volume bind mounts to rootfs is not supported
+* the devices `/dev`,`/dev/mem`,`/dev/sd*`,`/dev/dm*`,`/dev/mapper`,`/dev/mmcblk*` cannot be added to a container
 
 ### Container setup
 
@@ -43,11 +52,11 @@ To grant access to the onboard BCM bluetooth chip the `/dev/ttyAMA0` host device
 
 To grant acccess to the GPIO signals in general the `/dev/gpiomem` host device needs to be added to the container.
 
-For NPIX-RS232, NPIX-RS485 modules support:
+For NIOT-E-NPIX-RS232, NIOT-E-NPIX-RS485 serial port plug-in modules support:
 
-To grant access to the serial port the device `/dev/ttyS0` needs to be added to the container. It needs an NPIX module attached during system boot process to be available. (NPIX-RS485 Remark: set GPIO 17 to '1' to activate NPIX-RS485 REV#2 module TX/RX auto direction feature).
+To grant access to the serial port the device `/dev/ttyS0` needs to be added to the container. It needs an NPIX module attached during system boot process to be available. (NIOT-E-NPIX-RS485 note: set GPIO 17 to '1' to activate TX/RX auto direction feature on revision #2 of this hadrware).
 
-For netPI RTE 3 target:
+For netPI RTE 3 and netFIELD Connect targets:
 
 To grant access to the onboard netX industrial network controller the `/dev/spidev0.0` host device needs to be added to the container.
 
@@ -55,19 +64,23 @@ To grant access to the onboard FRAM memory the `/dev/i2c-1` host device needs to
 
 #### Privileged mode
 
-The privileged mode option needs to be activated to lift the standard Docker enforced container limitations. With this setting the container and the applications inside are the getting (almost) all capabilities as if running on the Host directly. 
+The privileged mode option needs to be activated to lift the standard Docker enforced container limitations. With this setting the container and the applications inside are the getting (almost) all capabilities as if running on the host directly. 
 
 #### Environment variables
 
-For netPI RTE 3 target only:
+For netPI RTE 3 and netFIELD Connect targets only:
 
-The type of field network protocol can be specified that is loaded into netX industrial network controller through the following variable
+The type of field network protocol supported by the fieldbus nodes can be specified with the following variable
 
-* **FIELD** with value `pns` to load PROFINET IO device or value `eis` to load EtherNet/IP adapter network protocol
+* **FIELD** with value `pns` to load PROFINET IO device or value `eis` to load EtherNet/IP adapter network protocol. If the value is set to `none` the fieldbus nodes are not available at all.
 
-### Container deployment
+### Container deployments
 
-STEP 1. Open netPI's website in your browser (https).
+Pulling the image may take 10 minutes.
+
+#### netPI example
+
+STEP 1. Open netPI's web UI in your browser (https).
 
 STEP 2. Click the Docker tile to open the [Portainer.io](http://portainer.io/) Docker management user interface.
 
@@ -89,19 +102,42 @@ Parameter | Value | Remark
 
 STEP 4. Press the button *Actions > Start/Deploy container*
 
-Pulling the image may take a while (5-10mins). Sometimes it may take too long and a time out is indicated. In this case repeat STEP 4.
+#### Docker command line example
+
+`docker run -d --privileged --network=host --restart=always -e FIELD=pns --device=/dev/ttyAMA0:/dev/ttyAMA0 --device=/dev/vcio:/dev/vcio --device=/dev/gpiomem:/dev/gpiomem --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/i2c-1:/dev/i2c-1 --device=/dev/ttyS0:/dev/ttyS0 -p 1880:1880/tcp -p 9000:9000/tcp hilschernetpi/netpi-nodered`
+
+#### Docker compose example
+
+`
+version: "2"
+
+services:
+ nodered:
+   image: hilschernetpi/netpi-nodered
+   restart: always
+   privileged: true
+   network_mode: host
+   ports:
+     - 1880:1880
+     - 9000:9000
+   devices:
+     - "/dev/ttyAMA0:/dev/ttyAMA0"
+     - "/dev/vcio:/dev/vcio"
+     - "/dev/gpiomem:/dev/gpiomem"
+     - "/dev/spidev0.0:/dev/spidev0.0"
+     - "/dev/i2c-1:/dev/i2c-1"
+     - "/dev/ttyS0:/dev/ttyS0"
+   environment:
+     - FIELD=pns
+`
 
 ### Container access
 
-The container starts Node-RED automatically when started.
+The container starts Node-RED and all involved services automatically when deployed.
 
-Node-RED supports https secured web communication only. Open it in your browser with `https://<netPI-ip-address>:1880` e.g. `https://192.168.0.1:1880`.
+The container configures Node-RED to support https secured web communications. So open it in your browser with `https://<device-ip-address>:1880` e.g. `https://192.168.0.1:1880`.
 
-The container automatically adapts the netPI Control Panel/User Management setting if found. In this case login with valid user credentials.
-
-### Container tips & tricks
-
-For additional help or information visit the Hilscher Forum at https://forum.hilscher.com/
+The container configures Node-RED to ask for a login in case it runs on a device with admin web UI like netPI or netFIELD Connect. Use the same users/password as setup in the UI to login.
 
 ### License
 

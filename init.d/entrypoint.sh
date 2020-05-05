@@ -127,31 +127,35 @@ else
   rm -f /usr/lib/node_modules/node-red-contrib-generic-ble
 fi
 
-#check fieldbus node support
-if [[ -e "/dev/spidev0.0" ]]; then
-  echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
+#check if fieldbus node support is not desired
+if [ ! "$FIELD" = "none" ]
+then
+  #check fieldbus node support
+  if [[ -e "/dev/spidev0.0" ]]; then
+    echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
 
-  if [ "$FIELD" = "pns" ]
-  then
-    firmware="R160D000.nxf"
-  elif [ "$FIELD" = "eis" ]
-  then
-    firmware="R160H000.nxf"
+    if [ "$FIELD" = "pns" ]
+    then
+      firmware="R160D000.nxf"
+    elif [ "$FIELD" = "eis" ]
+    then
+      firmware="R160H000.nxf"
+    else
+      firmware="R160D000.nxf"
+    fi
+
+    #copy firmware to location where driver will load it from
+    if [ ! -f /opt/cifx/deviceconfig/FW/channel0/*.nxf ]; then
+      cp /root/.node-red/FWnetPI/$firmware /opt/cifx/deviceconfig/FW/channel0/$firmware
+    fi
+
+    # start Fieldbus Web configurator as background task
+    cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/
+    node app.js &
   else
-    firmware="R160D000.nxf"
+    rm -f /usr/lib/node_modules/fieldbus
   fi
-
-  #copy firmware to location where driver will load it from
-  if [ ! -f /opt/cifx/deviceconfig/FW/channel0/*.nxf ]; then
-    cp /root/.node-red/FWnetPI/$firmware /opt/cifx/deviceconfig/FW/channel0/$firmware
-  fi
-
-  # start Fieldbus Web configurator as background task
-  cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/
-  node app.js &
-else
-  rm -f /usr/lib/node_modules/fieldbus
 fi
 
 # start Node-RED as background task
