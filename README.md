@@ -108,28 +108,28 @@ STEP 4. Press the button *Actions > Start/Deploy container*
 
 #### Docker compose example
 
-`
-version: "2"
+A `docker-compose.yml` file could look like this
 
-services:
- nodered:
-   image: hilschernetpi/netpi-nodered
-   restart: always
-   privileged: true
-   network_mode: host
-   ports:
-     - 1880:1880
-     - 9000:9000
-   devices:
-     - "/dev/ttyAMA0:/dev/ttyAMA0"
-     - "/dev/vcio:/dev/vcio"
-     - "/dev/gpiomem:/dev/gpiomem"
-     - "/dev/spidev0.0:/dev/spidev0.0"
-     - "/dev/i2c-1:/dev/i2c-1"
-     - "/dev/ttyS0:/dev/ttyS0"
-   environment:
-     - FIELD=pns
-`
+    version: "2"
+
+    services:
+     nodered:
+       image: hilschernetpi/netpi-nodered
+       restart: always
+       privileged: true
+       network_mode: host
+       ports:
+         - 1880:1880
+         - 9000:9000
+       devices:
+         - "/dev/ttyAMA0:/dev/ttyAMA0"
+         - "/dev/vcio:/dev/vcio"
+         - "/dev/gpiomem:/dev/gpiomem"
+         - "/dev/spidev0.0:/dev/spidev0.0"
+         - "/dev/i2c-1:/dev/i2c-1"
+         - "/dev/ttyS0:/dev/ttyS0"
+       environment:
+         - FIELD=pns
 
 ### Container access
 
