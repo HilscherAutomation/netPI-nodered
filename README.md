@@ -20,12 +20,10 @@ Depending on the devices /dev/... found during the container start period the no
 
 The container has been successfully tested on the following hosts
 
-netPI, model RTE 3, product name NIOT-E-NPI3-51-EN-RE
-netPI, model CORE 3, product name NIOT-E-NPI3-EN
-netFIELD Connect, product name NIOT-E-TPI51-EN-RE/NFLD
-Raspberry Pi, model 3B
-
-For some installed nodes particular hardware components are prerequisites to run.
+* netPI, model RTE 3, product name NIOT-E-NPI3-51-EN-RE
+* netPI, model CORE 3, product name NIOT-E-NPI3-EN
+* netFIELD Connect, product name NIOT-E-TPI51-EN-RE/NFLD
+* Raspberry Pi, model 3B
 
 netPI devices specifically feature a restricted Docker protecting the system software's integrity by maximum. The restrictions are
 
