@@ -62,78 +62,80 @@ else
   sed -i -e 's+adminAuth: require("./user-authentication_v2.js"),\n    //adminAuth: {+//adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
 fi
 
-#make hardware dependent nodes dynamically available or unavailable
 
-#check 4DI4DO, NPIX-LEDs, USER-LEDs nodes support
-if [[ -e "/dev/gpiomem" ]]; then
-  echo "Precondition for node-red-contrib-npix-io node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-io /usr/lib/node_modules/node-red-contrib-npix-io
-  echo "Precondition for node-red-contrib-user-leds node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-user-leds /usr/lib/node_modules/node-red-contrib-user-leds
-  echo "Precondition for node-red-contrib-npix-leds node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-leds /usr/lib/node_modules/node-red-contrib-npix-leds
-else
-  rm -f /usr/lib/node_modules/node-red-contrib-npix-io
-  rm -f /usr/lib/node_modules/node-red-contrib-user-leds
-  rm -f /usr/lib/node_modules/node-red-contrib-npix-leds
-fi
+if [ ! -e container_first_start ]; then
 
-#check FRAM, 4AI16U, CAN nodes support
-if [[ -e "/dev/i2c-1" ]]; then
-  echo "Precondition for node-red-contrib-fram node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-fram /usr/lib/node_modules/node-red-contrib-fram 
-  echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/node-red-contrib-npix-ai
-  echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/node-red-contrib-canbus
-else
-  rm -f /usr/lib/node_modules/node-red-contrib-fram
-  rm -f /usr/lib/node_modules/node-red-contrib-npix-ai
-  rm -f /usr/lib/node_modules/node-red-contrib-canbus
-fi
+  echo "Container is starting the first time"
+  touch container_first_start
 
+  #make hardware dependent nodes dynamically available
 
-#check serial port node support
-if [[ -e "/dev/ttyS0" ]]; then
-  echo "Precondition for node-red-node-serialport node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-node-serialport /usr/lib/node_modules/node-red-node-serialport 
-else
-  rm -f /usr/lib/node_modules/node-red-node-serialport
-fi
+  #check 4DI4DO, NPIX-LEDs, USER-LEDs nodes support
+  if [[ -e "/dev/gpiomem" ]]; then
+    echo "Precondition for node-red-contrib-npix-io node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-io /usr/lib/node_modules/node-red-contrib-npix-io
+    echo "Precondition for node-red-contrib-user-leds node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-user-leds /usr/lib/node_modules/node-red-contrib-user-leds
+    echo "Precondition for node-red-contrib-npix-leds node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-leds /usr/lib/node_modules/node-red-contrib-npix-leds
+    echo "Precondition for node-red-node-pi-gpio node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-node-pi-gpio /usr/lib/node_modules/node-red-node-pi-gpio
+  fi
 
+  #check FRAM, 4AI16U, CAN nodes support
+  if [[ -e "/dev/i2c-1" ]]; then
+    echo "Precondition for node-red-contrib-fram node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-fram /usr/lib/node_modules/node-red-contrib-fram 
+    echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/node-red-contrib-npix-ai
+    echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/node-red-contrib-canbus
+  fi
 
-#check bluetooth node support
-if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
-  echo "Precondition for node-red-contrib-generic-ble node(s) met. Installing node(s)." 
-  ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-generic-ble /usr/lib/node_modules/node-red-contrib-generic-ble
+  #check serial port node support
+  if [[ -e "/dev/ttyS0" ]]; then
+    echo "Precondition for node-red-node-serialport node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-node-serialport /usr/lib/node_modules/node-red-node-serialport 
+  fi
 
-  #reset BCM chip (making sure get access even after container restart)
-  /opt/vc/bin/vcmailbox 0x38041 8 8 128 0 >/dev/null
-  sleep 1
-  /opt/vc/bin/vcmailbox 0x38041 8 8 128 1 >/dev/null
-  sleep 1
+  #check bluetooth node support
+  if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
+    echo "Precondition for node-red-contrib-generic-ble node(s) met. Installing node(s)." 
+    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-generic-ble /usr/lib/node_modules/node-red-contrib-generic-ble
+  fi
 
-  #load firmware to BCM chip and attach to hci0
-  hciattach /dev/ttyAMA0 bcm43xx 115200 noflow
-
-  #create hci0 device
-  hciconfig hci0 up
-
-  #start bluetooth daemon
-  /usr/libexec/bluetooth/bluetoothd -d &
-  pidbt="$!"
-
-else
-  rm -f /usr/lib/node_modules/node-red-contrib-generic-ble
-fi
-
-#check if fieldbus node support is not desired
-if [ ! "$FIELD" = "none" ]
-then
   #check fieldbus node support
   if [[ -e "/dev/spidev0.0" ]]; then
-    echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)." 
+    echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)."
     ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
+  fi
+fi
+
+# start bluetooth if support allows it
+if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
+
+    #reset BCM chip (making sure get access even after container restart)
+    /opt/vc/bin/vcmailbox 0x38041 8 8 128 0 >/dev/null
+    sleep 1
+    /opt/vc/bin/vcmailbox 0x38041 8 8 128 1 >/dev/null
+    sleep 1
+
+    #load firmware to BCM chip and attach to hci0
+    hciattach /dev/ttyAMA0 bcm43xx 115200 noflow
+
+    #create hci0 device
+    hciconfig hci0 up
+
+    #start bluetooth daemon
+    /usr/libexec/bluetooth/bluetoothd -d &
+    pidbt="$!"
+fi
+
+
+#check if fieldbus node support is not desired
+if [ ! "$FIELD" = "none" ]; then
+  #check fieldbus node support
+  if [[ -e "/dev/spidev0.0" ]]; then
 
     if [ "$FIELD" = "pns" ]
     then
@@ -153,8 +155,6 @@ then
     # start Fieldbus Web configurator as background task
     cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/
     node app.js &
-  else
-    rm -f /usr/lib/node_modules/fieldbus
   fi
 fi
 

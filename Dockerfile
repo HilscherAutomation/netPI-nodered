@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.5.1
+ENV HILSCHERNETPI_NODERED_VERSION 1.5.2
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -202,6 +202,9 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-io \
  && npm install \
  && cd /usr/lib/ \
+# -------------------- Install Raspberry GPIO nodes and all dependencies --------------------
+ && npm install node-red-node-pi-gpio@1.1.1 \
+ && mv ./node_modules/node-red-node-pi-gpio ./node_modules_tmp/node-red-node-pi-gpio \
 # -------------------- Install Modbus nodes and all dependencies --------------------
  && npm install node-red-contrib-modbus@4.1.3 \
 # -------------------- Install Dashboard nodes and all dependencies -----------------
@@ -287,8 +290,13 @@ COPY --from=builder /lib/udev/hid2hci /lib/udev/
 COPY "./init.d/*" /etc/init.d/
 
 #set the entrypoint
-ENTRYPOINT ["/etc/init.d/entrypoint.sh"]
+WORKDIR "/etc/init.d/"
+ENTRYPOINT ["entrypoint.sh"]
 
 #set STOPSGINAL
 STOPSIGNAL SIGTERM
 
+
+#do periodic health check
+HEALTHCHECK --interval=5s --timeout=3s --start-period=120s --retries=1 \
+    CMD curl -k --silent --fail --head https://localhost:1880/ || exit 1
