@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.5.2
+ENV HILSCHERNETPI_NODERED_VERSION 1.5.3
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -291,7 +291,7 @@ COPY "./init.d/*" /etc/init.d/
 
 #set the entrypoint
 WORKDIR "/etc/init.d/"
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/etc/init.d/entrypoint.sh"]
 
 #set STOPSGINAL
 STOPSIGNAL SIGTERM
