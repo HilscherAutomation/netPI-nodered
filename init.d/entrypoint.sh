@@ -106,8 +106,10 @@ if [ ! -e container_first_start ]; then
 
   #check fieldbus node support
   if [[ -e "/dev/spidev0.0" ]]; then
-    echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)."
-    ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
+    if [ ! "$FIELD" = "none" ]; then
+      echo "Precondition for node-red-fieldbus node(s) met. Installing node(s)."
+      ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
+    fi
   fi
 fi
 
