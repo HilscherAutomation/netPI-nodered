@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.5.5
+ENV HILSCHERNETPI_NODERED_VERSION 1.5.6
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -210,7 +210,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
 # -------------------- Install Dashboard nodes and all dependencies -----------------
  && npm install node-red-dashboard@2.16.3 \
 # -------------------- Install OPC UA nodes and all dependencies --------------------
- && npm install node-red-contrib-opcua@0.2.63 \
+ && npm install node-red-contrib-opcua@0.2.64 \
  && sed -i -e "s+path.join(process.cwd(), '../node_modules')+path.join(__dirname, '../node_modules')+" /usr/lib/node_modules/node-red-contrib-opcua/opcua/104-opcuaserver.js \
  && sed -i -e "s+path.join(process.cwd(), '../node_modules')+path.join(__dirname, '../node_modules')+" /usr/lib/node_modules/node-red-contrib-opcua/opcua/102-opcuaclient.js \
 # -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
