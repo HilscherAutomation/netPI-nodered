@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.5.6
+ENV HILSCHERNETPI_NODERED_VERSION 1.6.0
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -52,7 +52,7 @@ LABEL maintainer="netpi@hilscher.com" \
 # -------------------- Install netPI specific nodes --------------------------------------
 
 ARG FIELDBUS_NODE=netPI-nodered-fieldbus
-ARG FIELDBUS_NODE_VERSION=1.1.0
+ARG FIELDBUS_NODE_VERSION=1.2.0
 ARG FIELDBUS_NODE_DIR=/tmp/${FIELDBUS_NODE}-${FIELDBUS_NODE_VERSION}
 
 ARG FRAM_NODE=netPI-nodered-fram
@@ -75,7 +75,6 @@ ARG NPIX_IO_NODE=netPI-nodered-npix-io
 ARG NPIX_IO_NODE_VERSION=1.1.0
 ARG NPIX_IO_NODE_DIR=/tmp/${NPIX_IO_NODE}-${NPIX_IO_NODE_VERSION}
 
-
 RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/${FIELDBUS_NODE_VERSION} -o /tmp/${FIELDBUS_NODE} \
  && curl https://codeload.github.com/HilscherAutomation/${FRAM_NODE}/tar.gz/${FRAM_NODE_VERSION} -o /tmp/${FRAM_NODE} \
  && curl https://codeload.github.com/HilscherAutomation/${USER_LEDS_NODE}/tar.gz/${USER_LEDS_NODE_VERSION} -o /tmp/${USER_LEDS_NODE} \
@@ -89,19 +88,28 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && tar -xvf /tmp/${NPIX_IO_NODE} -C /tmp/ \
  && tar -xvf /tmp/${NPIX_LEDS_NODE} -C /tmp/ \
 # -------------------- Install nodejs and Node-RED --------------------------------------
-#install node.js V12.x.x and Node-RED 1.0.x
+#install node.js V12.x.x and Node-RED 1.x.x
  && apt-get update && apt-get install build-essential python-dev python-pip python-setuptools git \
  && curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -  \
  && apt-get install -y nodejs \
- && npm install -g --unsafe-perm node-red@1.0.6 \
+ && npm install -g --unsafe-perm node-red@1.1.0 \
  && npm config set package-lock false \
-#configure user login & https security
- && sed -i -e 's+//var fs = require("fs");+var fs = require("fs");+' /usr/lib/node_modules/node-red/settings.js \
- && sed -i -e "s+//    key: fs.readFileSync('privatekey.pem'),+https: {\n    key: fs.readFileSync('/root/.node-red/certs/node-key.pem'),+" /usr/lib/node_modules/node-red/settings.js \
- && sed -i -e "s+//    cert: fs.readFileSync('certificate.pem')+cert: fs.readFileSync('/root/.node-red/certs/node-cert.pem')\n    },+" /usr/lib/node_modules/node-red/settings.js \
+#enable https security and make certificates known
+ && sed -i -e "s+//  key: require(\"fs\").readFileSync('privkey.pem'),+https: {\n    key: require(\"fs\").readFileSync('/root/.node-red/certs/node-key.pem'),+" /usr/lib/node_modules/node-red/settings.js \
+ && sed -i -e "s+//  cert: require(\"fs\").readFileSync('cert.pem')+cert: require(\"fs\").readFileSync('/root/.node-red/certs/node-cert.pem')\n    },+" /usr/lib/node_modules/node-red/settings.js \
  && sed -i -e "s+//requireHttps: true,+requireHttps: true,+" /usr/lib/node_modules/node-red/settings.js \
  && mkdir -p /root/.node-red/node_modules \
  && cd /root/.node-red \
+#generate default Node-RED package.json file manually
+ && echo '{' > package.json \
+ && echo '  "name": "node-red-project",' >> package.json \
+ && echo '  "description": "A Node-RED Project",' >> package.json \
+ && echo '  "version": "0.0.1",' >> package.json \
+ && echo '  "private": true,' >> package.json \
+ && echo '  "dependencies": {' >> package.json \
+ && echo '  }' >> package.json \
+ && echo '}' >> package.json \
+#generate keys and self-signed certificate
  && npm install when request \
  && mkdir -p /root/.node-red/certs \
  && cd /root/.node-red/certs \
@@ -115,8 +123,10 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
 # install all additional tools
  && apt-get install libboost-filesystem-dev libboost-date-time-dev libjansson-dev p7zip-full \
 #install netx driver
- && dpkg -i ${FIELDBUS_NODE_DIR}/driver/netx-docker-pi-drv-1.1.3.deb \
+ && dpkg -i ${FIELDBUS_NODE_DIR}/driver/netx-docker-pi-drv-2.0.1-r0.deb \
+ && ln -s /usr/lib/libcifx.so /usr/lib/libcifx.so.1 \
 #compile program checking we are running on netPI RTE 3
+ && mv ${FIELDBUS_NODE_DIR}/driver/includes/*.h /usr/include/cifx \
  && mv ${FIELDBUS_NODE_DIR}/driver/checkdevicetype.c /opt/cifx \
  && gcc /opt/cifx/checkdevicetype.c -o /opt/cifx/checkdevicetype -I /usr/include/cifx -lcifx \
  && chmod +x /opt/cifx/checkdevicetype \
@@ -201,46 +211,45 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
     -t /usr/lib/node_modules_tmp/node-red-contrib-npix-io \
  && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-io \
  && npm install \
- && cd /usr/lib/ \
-# -------------------- Install Raspberry GPIO nodes and all dependencies --------------------
- && npm install node-red-node-pi-gpio@1.1.1 \
- && mv ./node_modules/node-red-node-pi-gpio ./node_modules_tmp/node-red-node-pi-gpio \
+# -------------------- Install standard nodes from the community --------------------------------------------------------------
+ && cd /root/.node-red/ \
+# -------------------- Install OPC UA nodes and all dependencies --------------------
+ && npm install node-red-contrib-opcua@0.2.64 \
+# -------------------- Install IBM Watson IoT nodes and all dependencies ------------
+ && npm install node-red-contrib-ibm-watson-iot@0.2.8 \
+# -------------------- Install Microsoft Azure IoT Hub nodes and all dependencies ---
+ && npm install node-red-contrib-azure-iot-hub@0.4.0 \
+# -------------------- Install influxdb node and all dependencies -------------------
+ && npm install node-red-contrib-influxdb@0.3.1 \
+# -------------------- Install MSSQL database node and all dependencies -------------
+ && npm install node-red-contrib-mssql-plus@0.4.4 \
+# -------------------- Install SMB file access node and all dependencies ------------
+ && npm install node-red-contrib-smb@1.1.1 \
 # -------------------- Install Modbus nodes and all dependencies --------------------
  && npm install node-red-contrib-modbus@4.1.3 \
 # -------------------- Install Dashboard nodes and all dependencies -----------------
- && npm install node-red-dashboard@2.16.3 \
-# -------------------- Install OPC UA nodes and all dependencies --------------------
- && npm install node-red-contrib-opcua@0.2.64 \
- && sed -i -e "s+path.join(process.cwd(), '../node_modules')+path.join(__dirname, '../node_modules')+" /usr/lib/node_modules/node-red-contrib-opcua/opcua/104-opcuaserver.js \
- && sed -i -e "s+path.join(process.cwd(), '../node_modules')+path.join(__dirname, '../node_modules')+" /usr/lib/node_modules/node-red-contrib-opcua/opcua/102-opcuaclient.js \
-# -------------------- Install IBM Watson IoT nodes and all dependencies --------------------
- && npm install node-red-contrib-ibm-watson-iot@0.2.8 \
-# -------------------- Install Microsoft Azure IoT Hub nodes and all dependencies --------------------
- && npm install node-red-contrib-azure-iot-hub@0.4.0 \
-# -------------------- Install influxdb node and all dependencies --------------------
- && npm install node-red-contrib-influxdb@0.3.1 \
-# -------------------- Install MSSQL database node and all dependencies --------------------
- && npm install node-red-contrib-mssql-plus@0.3.0 \
-# -------------------- Install SMB file access node and all dependencies --------------------
- && npm install node-red-contrib-smb@1.1.1 \
-# -------------------- Install S7 communication nodes and all dependencies --------------------
- && cd /usr/lib/ \
+ && npm install node-red-dashboard@2.22.1 \
+# -------------------- Install S7 communication nodes and all dependencies ----------
  && npm install node-red-contrib-s7comm@1.1.6 \
- && cd /usr/lib/node_modules/node-red-contrib-s7comm/node_modules \
+ && cd /root/.node-red/node_modules/node-red-contrib-s7comm/node_modules \
  && npm install net-keepalive@1.2.1 \
-# -------------------- Install serial port node and all dependencies --------------------
+# -------------------- Install standard nodes that are dynamically enabled/disabled -------------------------------------------
  && cd /usr/lib/ \
+# -------------------- Install Raspberry GPIO nodes and all dependencies ------------
+ && npm install node-red-node-pi-gpio@1.1.1 \
+ && mv ./node_modules/node-red-node-pi-gpio ./node_modules_tmp/node-red-node-pi-gpio \
+# -------------------- Install serial port node and all dependencies ----------------
  && npm install node-red-node-serialport@0.8.6 \ 
  && mv /usr/lib/node_modules/node-red-node-serialport /usr/lib/node_modules_tmp \
-# -------------------- Install socketCAN nodes and all dependencies --------------------
+# -------------------- Install socketCAN nodes and all dependencies -----------------
  && git clone https://github.com/hilschernetpi/node-red-addons /tmp/node-red-addons \
  && cd /tmp/node-red-addons/node-red-contrib-canbus \
  && npm install \
  && mv /tmp/node-red-addons/node-red-contrib-canbus /usr/lib/node_modules_tmp \
-# -------------------- Install Bluetooth stack and all dependencies --------------------
+# -------------------- Install Bluetooth stack and all dependencies -----------------
  && cd /usr/lib/ \
  && apt-get install libudev-dev \
- && npm install node-red-contrib-generic-ble@3.1.0 \
+ && npm install node-red-contrib-generic-ble@4.0.2 \
  && mv /usr/lib/node_modules/node-red-contrib-generic-ble /usr/lib/node_modules_tmp \
  && apt-get install -y dbus libglib2.0-dev \
 #get BCM chip firmware 
@@ -260,6 +269,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
 #clean up
  && apt-get remove git p7zip-full \
  && apt-get autoremove \
+ && apt-get clean \
  && rm -rf /tmp/* \
  && rm -rf /var/lib/apt/lists/*
 
@@ -295,9 +305,11 @@ COPY "./init.d/*" /etc/init.d/
 WORKDIR "/etc/init.d/"
 ENTRYPOINT ["/etc/init.d/entrypoint.sh"]
 
+#Node-RED and fieldbus web configurator ports
+EXPOSE 1880 9000
+
 #set STOPSGINAL
 STOPSIGNAL SIGTERM
-
 
 #do periodic health check
 HEALTHCHECK --interval=5s --timeout=3s --start-period=120s --retries=1 \

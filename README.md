@@ -90,20 +90,20 @@ Parameter | Value | Remark
 *Image* | **hilschernetpi/netpi-nodered** |
 *Network > Network* | **host** |
 *Restart policy* | **always**
-*Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** | optional, netPI RTE 3
-*Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** | optional, Bluetooth
-*Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** | optional, Bluetooth
-*Runtime > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** | optional, DIO, AIU
-*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional, Fieldbus
-*Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional, FRAM, CAN
-*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional, NPIX serial
+*Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** | optional for netPI RTE 3, netFIELD Connect
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** | optional for Bluetooth
+*Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** | optiona for Bluetooth
+*Runtime > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** | optional for NPIX DIO, AIU
+*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
+*Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional for FRAM, NPIX CAN
+*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional for NPIX serial
 *Runtime > Privileged mode* | **On** |
 
 STEP 4. Press the button *Actions > Start/Deploy container*
 
 #### Docker command line example
 
-`docker run -d --privileged --network=host --restart=always -e FIELD=pns --device=/dev/ttyAMA0:/dev/ttyAMA0 --device=/dev/vcio:/dev/vcio --device=/dev/gpiomem:/dev/gpiomem --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/i2c-1:/dev/i2c-1 --device=/dev/ttyS0:/dev/ttyS0 -p 1880:1880/tcp -p 9000:9000/tcp hilschernetpi/netpi-nodered`
+`docker run -d --privileged --network=host --restart=always -e FIELD=pns --device=/dev/ttyAMA0:/dev/ttyAMA0 --device=/dev/vcio:/dev/vcio --device=/dev/gpiomem:/dev/gpiomem --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/i2c-1:/dev/i2c-1  -p 1880:1880/tcp -p 9000:9000/tcp hilschernetpi/netpi-nodered`
 
 #### Docker compose example
 
@@ -126,7 +126,6 @@ A `docker-compose.yml` file could look like this
          - "/dev/gpiomem:/dev/gpiomem"
          - "/dev/spidev0.0:/dev/spidev0.0"
          - "/dev/i2c-1:/dev/i2c-1"
-         - "/dev/ttyS0:/dev/ttyS0"
        environment:
          - FIELD=pns
 
