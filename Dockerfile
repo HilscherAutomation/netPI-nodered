@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.6.0
+ENV HILSCHERNETPI_NODERED_VERSION 1.6.1
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -67,9 +67,9 @@ ARG NPIX_LEDS_NODE=netPI-nodered-npix-leds
 ARG NPIX_LEDS_NODE_VERSION=1.0.0
 ARG NPIX_LEDS_NODE_DIR=/tmp/${NPIX_LEDS_NODE}-${NPIX_LEDS_NODE_VERSION}
 
-ARG NPIX_AI_NODE=netPI-nodered-npix-ai
-ARG NPIX_AI_NODE_VERSION=1.1.0
-ARG NPIX_AI_NODE_DIR=/tmp/${NPIX_AI_NODE}-${NPIX_AI_NODE_VERSION}
+#ARG NPIX_AI_NODE=netPI-nodered-npix-ai
+#ARG NPIX_AI_NODE_VERSION=1.1.0
+#ARG NPIX_AI_NODE_DIR=/tmp/${NPIX_AI_NODE}-${NPIX_AI_NODE_VERSION}
 
 ARG NPIX_IO_NODE=netPI-nodered-npix-io
 ARG NPIX_IO_NODE_VERSION=1.1.0
@@ -79,12 +79,12 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && curl https://codeload.github.com/HilscherAutomation/${FRAM_NODE}/tar.gz/${FRAM_NODE_VERSION} -o /tmp/${FRAM_NODE} \
  && curl https://codeload.github.com/HilscherAutomation/${USER_LEDS_NODE}/tar.gz/${USER_LEDS_NODE_VERSION} -o /tmp/${USER_LEDS_NODE} \
  && curl https://codeload.github.com/HilscherAutomation/${NPIX_LEDS_NODE}/tar.gz/${NPIX_LEDS_NODE_VERSION} -o /tmp/${NPIX_LEDS_NODE} \
- && curl https://codeload.github.com/HilscherAutomation/${NPIX_AI_NODE}/tar.gz/${NPIX_AI_NODE_VERSION} -o /tmp/${NPIX_AI_NODE} \
+# && curl https://codeload.github.com/HilscherAutomation/${NPIX_AI_NODE}/tar.gz/${NPIX_AI_NODE_VERSION} -o /tmp/${NPIX_AI_NODE} \
  && curl https://codeload.github.com/HilscherAutomation/${NPIX_IO_NODE}/tar.gz/${NPIX_IO_NODE_VERSION} -o /tmp/${NPIX_IO_NODE} \
  && tar -xvf /tmp/${FIELDBUS_NODE} -C /tmp/ \
  && tar -xvf /tmp/${FRAM_NODE} -C /tmp/ \
  && tar -xvf /tmp/${USER_LEDS_NODE} -C /tmp/ \
- && tar -xvf /tmp/${NPIX_AI_NODE} -C /tmp/ \
+# && tar -xvf /tmp/${NPIX_AI_NODE} -C /tmp/ \
  && tar -xvf /tmp/${NPIX_IO_NODE} -C /tmp/ \
  && tar -xvf /tmp/${NPIX_LEDS_NODE} -C /tmp/ \
 # -------------------- Install nodejs and Node-RED --------------------------------------
@@ -193,16 +193,16 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-leds \
  && npm install \
 # -------------------- Install NPIX 4AI16U nodes and all dependencies --------------------
- && mkdir /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
- && mv ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/npixai.js \ 
-    ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/npixai.html \
-    ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/package.json \
-    -t /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
- && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
- && npm install \
- && git clone https://github.com/jaycetde/node-ads1x15 /usr/lib/node_modules_tmp/node-red-contrib-npix-ai/node_modules/node-ads1x15 \
- && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-ai/node_modules/node-ads1x15 \
- && npm install \
+# && mkdir /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
+# && mv ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/npixai.js \ 
+#    ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/npixai.html \
+#    ${NPIX_AI_NODE_DIR}/node-red-contrib-npix-ai/package.json \
+#    -t /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
+# && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-ai \
+# && npm install \
+# && git clone https://github.com/jaycetde/node-ads1x15 /usr/lib/node_modules_tmp/node-red-contrib-npix-ai/node_modules/node-ads1x15 \
+# && cd /usr/lib/node_modules_tmp/node-red-contrib-npix-ai/node_modules/node-ads1x15 \
+# && npm install \
 # -------------------- Install NPIX 4DI4DO nodes and all dependencies --------------------
  && mkdir /usr/lib/node_modules_tmp/node-red-contrib-npix-io \
  && mv ${NPIX_IO_NODE_DIR}/node-red-contrib-npix-io/npixio.js \

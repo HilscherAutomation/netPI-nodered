@@ -34,6 +34,10 @@ netPI devices specifically feature a restricted Docker protecting the system sof
 
 ### Container setup
 
+#### Volume mapping (optional)
+
+To store the Node-RED flow and settings files permanently on the Docker host they can be outsourced in a "separate" volume outside the container. This keeps the files on the system even if the container is removed. If later the volume is remapped to a new container the files are available again to it and reused.
+
 #### Port mapping, network mode
 
 The container needs to run in `host` network mode. 
@@ -83,7 +87,9 @@ STEP 1. Open netPI's web UI in your browser (https).
 
 STEP 2. Click the Docker tile to open the [Portainer.io](http://portainer.io/) Docker management user interface.
 
-STEP 3. Enter the following parameters under *Containers > + Add Container*
+STEP 3. Click *Volumes > + Add Volume*. Enter `nodered` as *Name* and click `Create the volume`. 
+
+STEP 4. Enter the following parameters under *Containers > + Add Container*
 
 Parameter | Value | Remark
 :---------|:------ |:------
@@ -97,13 +103,15 @@ Parameter | Value | Remark
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
 *Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional for FRAM, NPIX CAN
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional for NPIX serial
+*Volumes > Volume mapping > map volume* | *container* **/nodered** -> *volume* **/root/.node-red** | optional for flow persistence
 *Runtime > Privileged mode* | **On** |
 
-STEP 4. Press the button *Actions > Start/Deploy container*
+STEP 5. Press the button *Actions > Start/Deploy container*
 
 #### Docker command line example
 
-`docker run -d --privileged --network=host --restart=always -e FIELD=pns --device=/dev/ttyAMA0:/dev/ttyAMA0 --device=/dev/vcio:/dev/vcio --device=/dev/gpiomem:/dev/gpiomem --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/i2c-1:/dev/i2c-1  -p 1880:1880/tcp -p 9000:9000/tcp hilschernetpi/netpi-nodered`
+`docker volume create nodered` `&&`
+`docker run -d --privileged --network=host --restart=always -e FIELD=pns --device=/dev/ttyAMA0:/dev/ttyAMA0 --device=/dev/vcio:/dev/vcio --device=/dev/gpiomem:/dev/gpiomem --device=/dev/spidev0.0:/dev/spidev0.0 --device=/dev/i2c-1:/dev/i2c-1 -v nodered:/root/.node-red -p 1880:1880/tcp -p 9000:9000/tcp hilschernetpi/netpi-nodered`
 
 #### Docker compose example
 
@@ -126,6 +134,8 @@ A `docker-compose.yml` file could look like this
          - "/dev/gpiomem:/dev/gpiomem"
          - "/dev/spidev0.0:/dev/spidev0.0"
          - "/dev/i2c-1:/dev/i2c-1"
+       volumes:
+         - nodered:/root/.node-red
        environment:
          - FIELD=pns
 
