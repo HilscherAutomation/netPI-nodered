@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.6.1
+ENV HILSCHERNETPI_NODERED_VERSION 1.6.2
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -52,7 +52,7 @@ LABEL maintainer="netpi@hilscher.com" \
 # -------------------- Install netPI specific nodes --------------------------------------
 
 ARG FIELDBUS_NODE=netPI-nodered-fieldbus
-ARG FIELDBUS_NODE_VERSION=1.2.0
+ARG FIELDBUS_NODE_VERSION=1.2.1
 ARG FIELDBUS_NODE_DIR=/tmp/${FIELDBUS_NODE}-${FIELDBUS_NODE_VERSION}
 
 ARG FRAM_NODE=netPI-nodered-fram
@@ -92,7 +92,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && apt-get update && apt-get install build-essential python-dev python-pip python-setuptools git \
  && curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -  \
  && apt-get install -y nodejs \
- && npm install -g --unsafe-perm node-red@1.1.0 \
+ && npm install -g --unsafe-perm node-red@1.1.3 \
  && npm config set package-lock false \
 #enable https security and make certificates known
  && sed -i -e "s+//  key: require(\"fs\").readFileSync('privkey.pem'),+https: {\n    key: require(\"fs\").readFileSync('/root/.node-red/certs/node-key.pem'),+" /usr/lib/node_modules/node-red/settings.js \
@@ -131,8 +131,8 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && gcc /opt/cifx/checkdevicetype.c -o /opt/cifx/checkdevicetype -I /usr/include/cifx -lcifx \
  && chmod +x /opt/cifx/checkdevicetype \
 #install web fieldbus configurator
- && 7z -t7z -r -v: x "${FIELDBUS_NODE_DIR}/web-configurator-fieldbus/WebConfigurator_V1.0200.1000.7z" -o/usr/lib/node_modules_tmp \
- && mv "/usr/lib/node_modules_tmp/WebConfigurator V1.0200.1000" "/usr/lib/node_modules_tmp/WebConfigurator" \
+ && 7z -t7z -r -v: x "${FIELDBUS_NODE_DIR}/web-configurator-fieldbus/WebConfigurator_V1.0200.1358.7z" -o/usr/lib/node_modules_tmp \
+ && mv "/usr/lib/node_modules_tmp/WebConfigurator V1.0200.1358" "/usr/lib/node_modules_tmp/WebConfigurator" \
  && cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/ \
  && npm install \
 #make some changes in the fielbus configurator setup file
