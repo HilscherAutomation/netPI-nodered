@@ -103,7 +103,7 @@ Parameter | Value | Remark
 *Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
 *Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional for FRAM, NPIX CAN
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional for NPIX serial
-*Volumes > Volume mapping > map volume* | *container* **/nodered** -> *volume* **/root/.node-red** | optional for flow persistence
+*Volumes > Volume mapping > map additional volume* | *volume* **/nodered** -> *container* **/root/.node-red** | optional for flow persistence
 *Runtime > Privileged mode* | **On** |
 
 STEP 5. Press the button *Actions > Start/Deploy container*
@@ -150,7 +150,7 @@ The container configures Node-RED to ask for a login in case it runs on a device
 ### License
 
 Copyright (c) Hilscher Gesellschaft fuer Systemautomation mbH. All rights reserved.
-Licensed under the LISENSE.txt file information stored in the project's source code repository.
+Licensed under the LICENSE.txt file information stored in the project's source code repository.
 
 As with all Docker images, these likely also contain other software which may be under other licenses (such as Bash, etc from the base distribution, along with any direct or indirect dependencies of the primary software being contained).
 As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
