@@ -16,8 +16,11 @@ else
   ip link delete dummy0 >/dev/null 2>&1
 fi
 
-# start dbus as background task
-/etc/init.d/dbus start
+# check if dbus address is already defined -> then dbus-deamon of host shall be used
+if [[ ! -d "/var/run/dbus/system_bus_socket" ]]; then
+   # else start a dbus daemon instance in the container
+   /etc/init.d/dbus start
+fi
 
 pidbt=0
 
@@ -34,8 +37,9 @@ term_handler() {
   fi
 
   echo "terminating dbus ..."
-  /etc/init.d/dbus stop
-
+  if [[ ! -d "/var/run/dbus/system_bus_socket" ]]; then
+    /etc/init.d/dbus stop
+  fi
 
   exit 143; # 128 + 15 -- SIGTERM
 }
