@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.6.3
+ENV HILSCHERNETPI_NODERED_VERSION 1.6.4
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -52,7 +52,7 @@ LABEL maintainer="netpi@hilscher.com" \
 # -------------------- Install netPI specific nodes --------------------------------------
 
 ARG FIELDBUS_NODE=netPI-nodered-fieldbus
-ARG FIELDBUS_NODE_VERSION=1.2.1
+ARG FIELDBUS_NODE_VERSION=1.2.2
 ARG FIELDBUS_NODE_DIR=/tmp/${FIELDBUS_NODE}-${FIELDBUS_NODE_VERSION}
 
 ARG FRAM_NODE=netPI-nodered-fram
@@ -125,6 +125,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
 #install netx driver
  && dpkg -i ${FIELDBUS_NODE_DIR}/driver/netx-docker-pi-drv-2.0.1-r0.deb \
  && ln -s /usr/lib/libcifx.so /usr/lib/libcifx.so.1 \
+ && sed -i -e 's;ChunkSize=0;ChunkSize=250;' /opt/cifx/plugins/netx-spm/config0 \
 #compile program checking we are running on netPI RTE 3
  && mv ${FIELDBUS_NODE_DIR}/driver/includes/*.h /usr/include/cifx \
  && mv ${FIELDBUS_NODE_DIR}/driver/checkdevicetype.c /opt/cifx \
