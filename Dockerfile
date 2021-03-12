@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.7.1
+ENV HILSCHERNETPI_NODERED_VERSION 1.7.2
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -153,6 +153,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
     ${FIELDBUS_NODE_DIR}/node-red-contrib-fieldbus/lib/HilscherLog.js \
     ${FIELDBUS_NODE_DIR}/node-red-contrib-fieldbus/lib/HilscherToolBox.js \
     /usr/lib/node_modules_tmp/fieldbus/lib \
+ && sed -i -e 's+RED.events.on("nodes-started", function ()+RED.events.on("flows:started", function ()+' /usr/lib/node_modules_tmp/fieldbus/10-fieldbus.js \
  && cd /usr/lib/node_modules_tmp/fieldbus \
  && npm install \
  && sed -i -e 's;window.location.protocol;"http:";' 10-fieldbus.html \

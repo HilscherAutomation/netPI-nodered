@@ -17,7 +17,7 @@ else
 fi
 
 # check if dbus address is already defined -> then dbus-deamon of host shall be used
-if [[ ! -d "/var/run/dbus/system_bus_socket" ]]; then
+if [[ ! -S "/var/run/dbus/system_bus_socket" ]]; then
    # else start a dbus daemon instance in the container
    /etc/init.d/dbus start
 fi
@@ -37,7 +37,7 @@ term_handler() {
   fi
 
   echo "terminating dbus ..."
-  if [[ ! -d "/var/run/dbus/system_bus_socket" ]]; then
+  if [[ ! -S "/var/run/dbus/system_bus_socket" ]]; then
     /etc/init.d/dbus stop
   fi
 
@@ -90,8 +90,8 @@ if [ ! -e container_first_start ]; then
   if [[ -e "/dev/i2c-1" ]]; then
     echo "Precondition for node-red-contrib-fram node(s) met. Installing node(s)." 
     ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-fram /usr/lib/node_modules/node-red-contrib-fram 
-    echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
-    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/node-red-contrib-npix-ai
+#    echo "Precondition for node-red-contrib-npix-ai node(s) met. Installing node(s)." 
+#    ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-npix-ai /usr/lib/node_modules/node-red-contrib-npix-ai
     echo "Precondition for node-red-contrib-canbus node(s) met. Installing node(s)." 
     ln -s -f /usr/lib/node_modules_tmp/node-red-contrib-canbus /usr/lib/node_modules/node-red-contrib-canbus
   fi
@@ -129,12 +129,13 @@ if [[ -e "/dev/ttyAMA0" ]] && [[ -e "/dev/vcio" ]]; then
     #load firmware to BCM chip and attach to hci0
     hciattach /dev/ttyAMA0 bcm43xx 115200 noflow
 
-    #create hci0 device
-    hciconfig hci0 up
-
     #start bluetooth daemon
     /usr/libexec/bluetooth/bluetoothd -d &
     pidbt="$!"
+
+    #create hci0 device
+    hciconfig hci0 up
+
 fi
 
 
@@ -160,7 +161,7 @@ if [ ! "$FIELD" = "none" ]; then
 
     # start Fieldbus Web configurator as background task
     cd /usr/lib/node_modules_tmp/WebConfigurator/ServerContent/
-    node app.js &
+    node app.js > /dev/null 2>&1 &
   fi
 fi
 
