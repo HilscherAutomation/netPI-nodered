@@ -1,11 +1,10 @@
 ## Node-RED
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![](https://images.microbadger.com/badges/commit/hilschernetpi/netpi-nodered.svg)](https://microbadger.com/images/hilschernetpi//netpi-nodered "Node-RED")
-[![Docker Registry](https://img.shields.io/docker/pulls/hilschernetpi/netpi-nodered.svg)](https://registry.hub.docker.com/r/hilschernetpi/netpi-nodered/)&nbsp;
-[![Image last updated](https://img.shields.io/badge/dynamic/json.svg?url=https://api.microbadger.com/v1/images/hilschernetpi/netpi-nodered&label=Image%20last%20updated&query=$.LastUpdated&colorB=007ec6)](http://microbadger.com/images/hilschernetpi/netpi-nodered "Image last updated")&nbsp;
-
 Made for Raspberry Pi 3B architecture based devices and compatibles
+
+### Docker repository
+
+https://hub.docker.com/r/hilschernetpi/netpi-nodered
 
 ### Container features
 
