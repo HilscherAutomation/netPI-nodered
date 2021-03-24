@@ -166,7 +166,7 @@ if [ ! "$FIELD" = "none" ]; then
 fi
 
 # start Node-RED as background task
-/usr/bin/node-red &
+/usr/bin/node-red flows.json &
 
 # wait forever not to exit the container
 while true
