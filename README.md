@@ -95,11 +95,11 @@ Parameter | Value | Remark
 *Image* | **hilschernetpi/netpi-nodered** |
 *Network > Network* | **host** |
 *Restart policy* | **always**
-*Runtime > Env* | *name* **FIELD** -> *value* **pns** or **eis** | optional for netPI RTE 3, netFIELD Connect
-*Runtime > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** | optional for Bluetooth
-*Runtime > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** | optiona for Bluetooth
-*Runtime > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** | optional for NPIX DIO, AIU
-*Runtime > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
+*Adv.con.set. > Env > +add env.var.* | *name* **FIELD** -> *value* **pns** or **eis** | optional for netPI RTE 3, netFIELD Connect
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** | optional for Bluetooth
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** | optiona for Bluetooth
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** | optional for NPIX DIO, AIU
+*Adv.con.set. > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
 *Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional for FRAM, NPIX CAN
 *Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional for NPIX serial
 *Volumes > Volume mapping > map additional volume* | *volume* **/nodered** -> *container* **/root/.node-red** | optional for flow persistence
