@@ -59,7 +59,7 @@ fi
 
 #check if we have a user V2 management running
 httpUrl='https://127.0.0.1/cockpit/login'
-rep=$(curl -k -s $httpUrl)
+rep=$(curl -k -s $httpUrl -H 'cookie: cockpit=deleted')
 if [[ $rep == *'Authentication failed'* ]]; then
   sed -i -e 's+//adminAuth: {+adminAuth: require("./user-authentication_v2.js"),\n    //adminAuth: {+' /usr/lib/node_modules/node-red/settings.js
 else

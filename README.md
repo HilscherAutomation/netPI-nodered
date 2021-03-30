@@ -93,17 +93,17 @@ STEP 4. Enter the following parameters under *Containers > + Add Container*
 Parameter | Value | Remark
 :---------|:------ |:------
 *Image* | **hilschernetpi/netpi-nodered** |
-*Network > Network* | **host** |
-*Restart policy* | **always**
+*Adv.con.set. > Network > Network* | **host** |
+*Adv.con.set. > Restart policy* | **always**
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** | optional for Bluetooth
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** | optiona for Bluetooth
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** | optional for NPIX DIO, AIU
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional for FRAM, NPIX CAN
+*Adv.con.set. > Runt. & Res. > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional for NPIX serial
+*Adv.con.set. > Runt. & Res. > Privileged mode* | **On** |
 *Adv.con.set. > Env > +add env.var.* | *name* **FIELD** -> *value* **pns** or **eis** | optional for netPI RTE 3, netFIELD Connect
-*Adv.con.set. > Devices > +add device* | *Host path* **/dev/ttyAMA0** -> *Container path* **/dev/ttyAMA0** | optional for Bluetooth
-*Adv.con.set. > Devices > +add device* | *Host path* **/dev/vcio** -> *Container path* **/dev/vcio** | optiona for Bluetooth
-*Adv.con.set. > Devices > +add device* | *Host path* **/dev/gpiomem** -> *Container path* **/dev/gpiomem** | optional for NPIX DIO, AIU
-*Adv.con.set. > Devices > +add device* | *Host path* **/dev/spidev0.0** -> *Container path* **/dev/spidev0.0** | optional for Fieldbus
-*Runtime > Devices > +add device* | *Host path* **/dev/i2c-1** -> *Container path* **/dev/i2c-1** | optional for FRAM, NPIX CAN
-*Runtime > Devices > +add device* | *Host path* **/dev/ttyS0** -> *Container path* **/dev/ttyS0** | optional for NPIX serial
-*Volumes > Volume mapping > map additional volume* | *volume* **/nodered** -> *container* **/root/.node-red** | optional for flow persistence
-*Runtime > Privileged mode* | **On** |
+*Adv.con.set. > Volumes > +map additional volume* | *volume* **/nodered** -> *container* **/root/.node-red** | optional for flow persistence
 
 STEP 5. Press the button *Actions > Start/Deploy container*
 
@@ -155,4 +155,3 @@ As with all Docker images, these likely also contain other software which may be
 As for any pre-built image usage, it is the image user's responsibility to ensure that any use of this image complies with any relevant licenses for all software contained within.
 
 [![N|Solid](http://www.hilscher.com/fileadmin/templates/doctima_2013/resources/Images/logo_hilscher.png)](http://www.hilscher.com)  Hilscher Gesellschaft fuer Systemautomation mbH  www.hilscher.com
-

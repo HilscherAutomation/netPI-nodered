@@ -20,7 +20,8 @@ module.exports = {
               requestCert: true,
               agent: false,
               headers : {
-                "Authorization" : auth
+                "Authorization" : auth,
+                "cookie" : "cockpit=deleted"
               }
            },
            function (error, response, body) {
