@@ -20,6 +20,10 @@ fi
 if [[ ! -S "/var/run/dbus/system_bus_socket" ]]; then
    # else start a dbus daemon instance in the container
    /etc/init.d/dbus start
+   touch dbus_in_container_started
+elif  [[ -e dbus_in_container_started ]]; then
+   # start a dbus daemon instance in the container
+   /etc/init.d/dbus start
 fi
 
 pidbt=0
