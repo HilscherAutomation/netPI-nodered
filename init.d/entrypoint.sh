@@ -74,7 +74,17 @@ fi
 if [ ! -e container_first_start ]; then
 
   echo "Container is starting the first time"
-  touch container_first_start
+
+  #copy the settings file to the correct location
+  cp /usr/lib/node_modules/node-red/settings.js /root/settings/settings.js
+
+
+  #generate keys and self-signed certificate
+
+  mkdir -p /root/.node-red/certs
+  openssl genrsa -out /root/.node-red/certs/node-key.pem 4096
+  openssl req -new -sha256 -key /root/.node-red/certs/node-key.pem -out /root/.node-red/certs/node-csr.pem -subj "/C=DE/ST=Hessen/L=Hattersheim/O=Hilscher/OU=Hilscher/CN=$HOSTNAME/emailAddress=myown@hilscher.com"
+  openssl x509 -req -days 365 -in /root/.node-red/certs/node-csr.pem -signkey /root/.node-red/certs/node-key.pem -out /root/.node-red/certs/node-cert.pem 
 
   #make hardware dependent nodes dynamically available
 
@@ -119,6 +129,9 @@ if [ ! -e container_first_start ]; then
       ln -s -f /usr/lib/node_modules_tmp/fieldbus /usr/lib/node_modules/fieldbus
     fi
   fi
+
+  touch container_first_start
+
 fi
 
 # start bluetooth if support allows it
@@ -170,7 +183,7 @@ if [ ! "$FIELD" = "none" ]; then
 fi
 
 # start Node-RED as background task
-/usr/bin/node-red flows.json &
+/usr/bin/node-red --settings /root/settings/settings.js flows.json &
 
 # wait forever not to exit the container
 while true

@@ -12,7 +12,7 @@ module.exports = {
    },
    authenticate: function(username,password) {
        return new Promise(function(resolve) {
-           var auth = 'Basic ' + new Buffer(username + ':' + password).toString('base64');
+           var auth = 'Basic ' + new Buffer.from(username + ':' + password).toString('base64');
            var url = 'https://127.0.0.1/cockpit/login'
            request.get({
               url : url,

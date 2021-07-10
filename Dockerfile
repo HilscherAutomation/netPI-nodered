@@ -41,7 +41,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-ref=$VCS_REF
 
 #version
-ENV HILSCHERNETPI_NODERED_VERSION 1.7.5
+ENV HILSCHERNETPI_NODERED_VERSION 1.7.6
 
 #labeling
 LABEL maintainer="netpi@hilscher.com" \
@@ -109,13 +109,10 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
  && echo '  "dependencies": {' >> package.json \
  && echo '  }' >> package.json \
  && echo '}' >> package.json \
-#generate keys and self-signed certificate
+#prepare separate settings.js folder for Node-RED
+ && mkdir /root/settings/ \
+ && cd /root/settings/ \
  && npm install when request \
- && mkdir -p /root/.node-red/certs \
- && cd /root/.node-red/certs \
- && openssl genrsa -out ./node-key.pem 2048 \
- && openssl req -new -sha256 -key ./node-key.pem -out ./node-csr.pem -subj "/C=DE/ST=Hessen/L=Hattersheim/O=Hilscher/OU=Hilscher/CN=myown/emailAddress=myown@hilscher.com" \
- && openssl x509 -req -in ./node-csr.pem -signkey ./node-key.pem -out ./node-cert.pem \
 # -------------------- Install GPIO python lib --------------------------------------
  && pip install wheel \
  && pip install RPi.GPIO \
@@ -277,7 +274,7 @@ RUN curl https://codeload.github.com/HilscherAutomation/${FIELDBUS_NODE}/tar.gz/
 
 # -------------------- Do all necessary copies --------------------
 
-COPY "./auth/*" /root/.node-red/
+COPY "./auth/*" /root/settings/
 
 #copy bluez tools from builder container
 COPY --from=builder /usr/bin/bluetoothctl /usr/bin/btmon /usr/bin/rctest /usr/bin/l2test /usr/bin/l2ping \

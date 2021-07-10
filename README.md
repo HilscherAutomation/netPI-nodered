@@ -138,6 +138,8 @@ A `docker-compose.yml` file could look like this
        environment:
          - FIELD=pns
 
+    volumes:
+      nodered:
 ### Container access
 
 The container starts Node-RED and all involved services automatically when deployed.
